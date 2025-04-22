@@ -1,0 +1,27 @@
+<?php
+
+namespace Database\Factories;
+
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+
+class TransactionFactory extends Factory
+{
+    public function definition(): array
+    {
+        $type = $this->faker->randomElement(['income', 'expense']);
+        
+        return [
+            'user_id' => 1,
+            'amount' => $this->faker->randomFloat(2, 10, 2000),
+            'category' => $this->faker->randomElement([
+                'Salary', 'Freelance', 'Groceries', 'Rent', 'Utilities',
+                'Transport', 'Entertainment', 'Investment', 'Insurance', 'Subscriptions'
+            ]),
+            'type' => $type,
+            'date' => $this->faker->dateTimeBetween('-3 months', 'now'),
+            'description' => $this->faker->sentence(6),
+            
+        ];
+    }
+}
