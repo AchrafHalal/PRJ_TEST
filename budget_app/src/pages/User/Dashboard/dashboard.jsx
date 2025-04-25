@@ -8,7 +8,7 @@ import ThirdSection from './thirdSection';
 export default function Dashboard() {
   return (
     <div>
-      <Box sx={{ textAlign: 'right',flexGrow: 1, px: 3, mt:52 }}>
+      <Box sx={{ textAlign: 'right',flexGrow: 1, px: 3, mt:'15px' }}>
         <Button
           variant="contained"
           color="primary"

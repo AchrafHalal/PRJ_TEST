@@ -13,7 +13,9 @@ export const getDesignTokens = (mode) => ({
           background: {
             default: "#f5f7f9",
             paper: "#ffffff",
-          }
+          },
+          admin: '#388e3c',
+           
           
         }
       : {
@@ -28,6 +30,8 @@ export const getDesignTokens = (mode) => ({
             default: "#1f2a32",     
             paper: "#27343d",       
           },
+          admin: '#1b5e20'
+
         }),
   },
 });

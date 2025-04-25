@@ -72,4 +72,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(UserProfile::class);
     }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
 }

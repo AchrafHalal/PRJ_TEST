@@ -77,7 +77,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-export default function TopBar({ open, handleDrawerOpen, setMode }) {
+export default function TopBar({ open, handleDrawerOpen, setMode, style }) {
   const theme = useTheme();
 
   const toggleMode = () => {
@@ -87,7 +87,7 @@ export default function TopBar({ open, handleDrawerOpen, setMode }) {
   };
 
   return (
-    <AppBar position="fixed" open={open}>
+    <AppBar position="fixed" open={open} style={style}>
       <Toolbar>
         <IconButton
           color="inherit"
