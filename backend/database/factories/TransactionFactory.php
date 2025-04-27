@@ -12,14 +12,14 @@ class TransactionFactory extends Factory
         $type = $this->faker->randomElement(['income', 'expense']);
         
         return [
-            'user_id' => 1,
+            'user_id' => 4,
             'amount' => $this->faker->randomFloat(2, 10, 2000),
             'category' => $this->faker->randomElement([
                 'Salary', 'Freelance', 'Groceries', 'Rent', 'Utilities',
                 'Transport', 'Entertainment', 'Investment', 'Insurance', 'Subscriptions'
             ]),
             'type' => $type,
-            'date' => $this->faker->dateTimeBetween('-3 months', 'now'),
+            'date' => $this->faker->dateTimeBetween('01-01-' . now()->year, '31-05-' . now()->year),
             'description' => $this->faker->sentence(6),
             
         ];

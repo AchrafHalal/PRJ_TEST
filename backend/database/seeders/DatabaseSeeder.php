@@ -15,14 +15,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        /*
         User::firstOrCreate(
             ['email' => 'achraf@gmail.com'],
             [
-                'name' => 'Achraf',
+                'firstName' => 'Achraf',
+                'lastName' => 'Halal',
+                'dateOfBirth' => '2000-12-23',
                 'password' => Hash::make('123456789'), 
                 'role' => 'admin',
             ]
-        );
+        );*/
 
         $this->call([
             TransactionSeeder::class,

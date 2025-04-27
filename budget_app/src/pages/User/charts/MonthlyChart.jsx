@@ -27,39 +27,39 @@ export default function MonthlyChart() {
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("token");
-
+    
       if (!token) {
         console.error("Token is not available!!");
         return;
       }
-
+    
       try {
-        const res = await axios.get("http://localhost:8000/api/user/profile", {
+        const res = await axios.get("http://localhost:8000/api/user/monthly-summary", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        
-
-        const { combined_total_income, combined_total_expenses } = res.data;
+    
         console.log("API Data:", res.data);
-        
-
+    
         setData((prevData) =>
-          prevData.map((item) =>
-            item.month === "Jan"
-              ? {
-                  ...item,
-                  income: Number(combined_total_income),
-                  expenses: Number(combined_total_expenses),
-                }
-              : item
-          )
+          prevData.map((item) => {
+            const found = res.data.find((d) => d.month.startsWith(item.month));
+            if (found) {
+              return {
+                ...item,
+                income: found.income,
+                expenses: found.expenses,
+              };
+            }
+            return item;
+          })
         );
       } catch (error) {
         console.error("Error fetching profile data:", error);
       }
     };
+    
 
     fetchData();
   }, []);

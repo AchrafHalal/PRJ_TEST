@@ -16,7 +16,12 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::post('/user/setup', [UserProfileController::class, 'store']);
     Route::get('/user/profile', [UserProfileController::class, 'show']);
+    Route::get('/user/monthly-summary', [UserProfileController::class, 'monthlySummary']);
     Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::get('/listTransaction', [TransactionController::class, 'index']);
+    Route::delete('/deleteTransaction/{id}', [TransactionController::class, 'destroy']);
+    Route::get('/viewTransaction/{id}', [TransactionController::class, 'viewTransaction']); //refers to one Transaction
+    Route::put('/updateTransaction/{id}', [TransactionController::class, 'update']);
 
     
 });

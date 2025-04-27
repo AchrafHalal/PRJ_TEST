@@ -14,6 +14,7 @@ import Login from "./pages/Auth/Login/login";
 import Signup from "./pages/Auth/Signup/signup";
 import Admin from "./pages/Admin/ListUsers/admin";
 import ViewUser from "./pages/Admin/viewUser/viewUser";
+import UpdateTrs from "./pages/User/TransactionList/update/updateTransaction";
 import './App.css';
 
 const Reports = () => <h1>Reports</h1>;
@@ -21,6 +22,7 @@ const Goals = () => <h1>Goals & Budgets</h1>;
 const Settings = () => <h1>Settings</h1>;
 const Logout = () => {
   localStorage.removeItem("token");
+  localStorage.clear();
   return <Navigate to="/login" />;
 };
 
@@ -42,8 +44,7 @@ export default function App() {
   const [mode, setMode] = useState(
     localStorage.getItem("currentMode") || "light"
   );
-  const [isAdmin] = useState(localStorage.getItem("isAdmin") === "true");
-
+  const [isAdmin] = useState(localStorage.getItem("isAdmin") === "admin");
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 
   return (
@@ -104,6 +105,7 @@ export default function App() {
                       <Route path="/reports" element={<Reports />} />
                       {isAdmin && <Route path="/admin" element={<Admin />} />}
                       {isAdmin && <Route path="/admin/view-user/:id" element={<ViewUser />} />}
+                      <Route path="/update-transaction/:id" element={<UpdateTrs />} />
                       <Route path="/coach" element={<InitForm />} />
                       <Route path="/settings" element={<Settings />} />
                       <Route path="/logout" element={<Logout />} />

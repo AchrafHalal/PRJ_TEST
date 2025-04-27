@@ -8,6 +8,8 @@ export default function FirstSection() {
     const [salary, setSalary] = useState(null);
     const [expenses, setExpenses] = useState(null);
     const [incomes, setIncomes] = useState(null);
+    const [monthlyIncome, setMonthlyIncome] = useState(null);
+    const [monthlyExpenses, setMonthlyExpenses] = useState(null);
 
     const token = localStorage.getItem('token');
 
@@ -27,6 +29,8 @@ export default function FirstSection() {
                 setSalary(res.data.profile.salary); 
                 setExpenses(res.data.combined_total_expenses);
                 setIncomes(res.data.combined_total_income);
+                setMonthlyIncome(res.data.monthly_income);
+                setMonthlyExpenses(res.data.monthly_expenses);
                 console.log(res.data);
                 
             } catch (error) {
@@ -39,11 +43,10 @@ export default function FirstSection() {
 
     const CardData = [
         { title: "My balance", amount: salary ? `$${salary}` : "$0", icon: <FaMoneyBillWave size={40} /> },
-        { title: "Monthly income", amount: incomes ? `$${incomes.toFixed(2)}` :"$0", icon: <FaRegMoneyBillAlt size={40} /> },
-        { title: "Monthly expenses", amount: expenses ? `$${expenses.toFixed(2)}` :"$0", icon: <FaWallet size={40} /> },
-        { title: "This Month", amount: "$25,000", icon: <FaCalendarAlt size={40} /> },
+        { title: "Monthly income", amount: monthlyIncome ? `$${monthlyIncome.toFixed(2)}` : "$0", icon: <FaRegMoneyBillAlt size={40} /> },
+        { title: "Monthly expenses", amount: monthlyExpenses ? `$${monthlyExpenses.toFixed(2)}` : "$0", icon: <FaWallet size={40} /> },
+        { title: "All-time balance", amount: incomes && expenses ? `$${(incomes - expenses).toFixed(2)}` : "$0", icon: <FaCalendarAlt size={40} /> },
     ];
-
 
     return (
         <div>

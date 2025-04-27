@@ -12,18 +12,43 @@ import {
   Button,
   useTheme,
 } from "@mui/material";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
-const transactions = [
-  { id: 1, date: "2025-04-10", category: "Groceries", amount: -45.75, type: "Expense" },
-  { id: 2, date: "2025-04-09", category: "Freelance", amount: 1200, type: "Income" },
-  { id: 3, date: "2025-04-08", category: "Utilities", amount: -80.99, type: "Expense" },
-  { id: 4, date: "2025-04-06", category: "Transport", amount: -20.0, type: "Expense" },
-  { id: 5, date: "2025-04-03", category: "Investment Return", amount: 350.5, type: "Income" },
-];
+import axios from "axios"; // <-- You forgot to import axios!
 
 export default function RecentTransactions() {
   const theme = useTheme();
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Token is missing!");
+          return;
+        }
+
+        const res = await axios.get("http://localhost:8000/api/listTransaction", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        console.log("Fetched Transactions:", res.data);
+
+        if(Array.isArray(res.data)) {
+          setTransactions(res.data.slice(0, 5));
+        } else {
+          console.error("Unexpected response format:", res.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch the data!!", error.response?.data || error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Paper
@@ -71,15 +96,15 @@ export default function RecentTransactions() {
                   <Typography
                     variant="body2"
                     fontWeight={500}
-                    color={tx.amount < 0 ? "error.main" : "success.main"}
+                    color={tx.type === "expense" ? "error.main" : "success.main"}
                   >
-                    {tx.amount < 0 ? "-" : "+"}${Math.abs(tx.amount).toFixed(2)}
+                    {tx.type === "expense" ? "-" : "+"}${Math.abs(tx.amount).toFixed(2)}
                   </Typography>
                 </TableCell>
                 <TableCell>
                   <Chip
                     label={tx.type}
-                    color={tx.type === "Income" ? "success" : "error"}
+                    color={tx.type === "income" ? "success" : "error"}
                     size="small"
                     variant="outlined"
                   />

@@ -41,7 +41,7 @@ export default function FirstLoginForm() {
 
   return (
     <Container maxWidth="sm">
-      <Box mt={5} p={3} borderRadius={3} boxShadow={3} bgcolor="background.paper">
+      <Box  p={3} borderRadius={3} boxShadow={3} bgcolor="background.paper">
         <Typography variant="h5" gutterBottom align="center">
           🧾 Première Configuration Financière
         </Typography>

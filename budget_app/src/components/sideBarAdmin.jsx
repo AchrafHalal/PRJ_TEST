@@ -75,8 +75,7 @@ export default function SideBar({ open, handleDrawerClose }) {
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { text: 'All Users', icon: <AttachMoneyIcon />, path: '/admin' },
-    { text: 'Priveleges', icon: <ListAltIcon />, path: '/transactions' },
-    { text: 'Logout', icon: <LogoutOutlinedIcon />, path: '/logout' },
+    { text: 'Privileges', icon: <ListAltIcon />, path: '/transactions' },
   ];
 
   return (
@@ -87,7 +86,9 @@ export default function SideBar({ open, handleDrawerClose }) {
         </IconButton>
       </DrawerHeader>
       <Divider />
-      <List>
+
+      {/* Main Menu */}
+      <List sx={{ flexGrow: 1 }}>
         {menuItems.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ display: 'block' }}>
             <Tooltip title={open ? '' : item.text} placement="left">
@@ -120,7 +121,37 @@ export default function SideBar({ open, handleDrawerClose }) {
           </ListItem>
         ))}
       </List>
+
       <Divider />
+
+      {/* Logout Button */}
+      <List>
+        <ListItem disablePadding sx={{ display: 'block', mb: 1 }}>
+          <Tooltip title={open ? '' : 'Logout'} placement="left">
+            <ListItemButton
+              onClick={() => navigate('/logout')}
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                <LogoutOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </Tooltip>
+        </ListItem>
+      </List>
+
     </StyledDrawer>
   );
 }
+

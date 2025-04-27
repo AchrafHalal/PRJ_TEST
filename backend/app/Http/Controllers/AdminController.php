@@ -18,7 +18,7 @@ class AdminController extends Controller
 
     public function listUsers()
     {
-        $users = User::whereIn('role', ['admin', 'user'])->get();
+        $users = User::whereIn('role', ['admin', 'user'])->where('id', '!=', auth()->user()->id)->get();
     
         return response()->json([
             'users' => $users
@@ -31,7 +31,7 @@ class AdminController extends Controller
         return response()->json([
             'user' => $user
         ]);
-
+        
     }
     
 

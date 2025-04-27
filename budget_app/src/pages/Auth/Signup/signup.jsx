@@ -5,15 +5,18 @@ import "./style.css";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     passwordConfirmation: "",
-    agreeTerms: false,
   });
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -28,37 +31,36 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
-    const { name, email, password, passwordConfirmation, agreeTerms } =
-      formData;
+    const { firstName, lastName, dateOfBirth, email, password, passwordConfirmation } = formData;
 
     if (password !== passwordConfirmation) {
       setError("Passwords do not match");
       return;
     }
 
-    if (!agreeTerms) {
-      setError("You must agree to the terms");
-      return;
-    }
+
 
     setLoading(true);
 
     try {
-      // Register
       await axios.post("http://localhost:8000/api/register", {
-        name,
+        firstName,
+        lastName,
+        dateOfBirth,
         email,
         password,
         password_confirmation: passwordConfirmation,
       });
 
-      // Login
       const loginRes = await axios.post("http://localhost:8000/api/login", {
         email,
         password,
       });
 
       const token = loginRes.data.token;
+      const role = loginRes.data.user.role;
+      
+      localStorage.setItem("isAdmin", role === "admin" ? "admin" : "user");
       localStorage.setItem("token", token);
       localStorage.setItem("auth", "true");
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -68,8 +70,7 @@ const Signup = () => {
       console.error("Full error:", err);
       const errorMsg = err.response?.data?.errors
         ? Object.values(err.response.data.errors).flat().join(", ")
-        : err.response?.data?.message ||
-          "Registration failed. Please try again.";
+        : err.response?.data?.message || "Registration failed. Please try again.";
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -89,12 +90,29 @@ const Signup = () => {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
+          {/* Normal Input */}
           <Input
             type="text"
-            name="name"
-            placeholder="Full Name"
+            name="firstName"
+            placeholder="First Name"
             icon="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
-            value={formData.name}
+            value={formData.firstName}
+            onChange={handleChange}
+          />
+          <Input
+            type="text"
+            name="lastName"
+            placeholder="Last Name"
+            icon="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+            value={formData.lastName}
+            onChange={handleChange}
+          />
+          <Input
+            type="date"
+            name="dateOfBirth"
+            placeholder="Date of Birth"
+            icon="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+            value={formData.dateOfBirth}
             onChange={handleChange}
           />
           <Input
@@ -105,34 +123,75 @@ const Signup = () => {
             value={formData.email}
             onChange={handleChange}
           />
-          <Input
-            type="password"
-            name="password"
-            placeholder="Password"
-            icon="https://cdn-icons-png.flaticon.com/512/3064/3064155.png"
-            value={formData.password}
-            onChange={handleChange}
-          />
-          <Input
-            type="password"
-            name="passwordConfirmation"
-            placeholder="Confirm Password"
-            icon="https://cdn-icons-png.flaticon.com/512/3064/3064155.png"
-            value={formData.passwordConfirmation}
-            onChange={handleChange}
-          />
 
-          <div className="options">
-            <label>
-              <input
-                type="checkbox"
-                name="agreeTerms"
-                checked={formData.agreeTerms}
-                onChange={handleChange}
-                required
-              />
-              I agree to the Terms
-            </label>
+          {/* Password Input with Eye */}
+          <div className="input-group" style={{ position: "relative" }}>
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png"
+              alt="Password icon"
+            />
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              style={{ paddingRight: "40px" }}
+            />
+            <img
+              src={
+                showPassword
+                  ? "https://cdn-icons-png.flaticon.com/512/159/159604.png"
+                  : "https://cdn-icons-png.flaticon.com/512/159/159605.png"
+              }
+              alt="Toggle Password Visibility"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: "20px",
+                height: "20px",
+                cursor: "pointer",
+              }}
+            />
+          </div>
+
+          {/* Confirm Password Input with Eye */}
+          <div className="input-group" style={{ position: "relative" }}>
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png"
+              alt="Confirm Password icon"
+            />
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              name="passwordConfirmation"
+              placeholder="Confirm Password"
+              value={formData.passwordConfirmation}
+              onChange={handleChange}
+              required
+              style={{ paddingRight: "40px" }}
+            />
+            <img
+              src={
+                showConfirmPassword
+                  ? "https://cdn-icons-png.flaticon.com/512/159/159605.png"
+                  : "https://cdn-icons-png.flaticon.com/512/159/159604.png"
+              }
+              alt="Toggle Confirm Password Visibility"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: "20px",
+                height: "20px",
+                cursor: "pointer",
+              }}
+            />
           </div>
 
           <button type="submit" className="login-btn" disabled={loading}>
@@ -148,7 +207,7 @@ const Signup = () => {
   );
 };
 
-// Reusable Input component for cleaner code
+// Normal Input without logic
 const Input = ({ type, name, placeholder, icon, value, onChange }) => (
   <div className="input-group">
     <img src={icon} alt={`${name} icon`} />

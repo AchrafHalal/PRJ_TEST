@@ -14,15 +14,20 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate( [
-            'name' => 'required|string|max:255',
+            'firstName' => 'required|string|max:255',
+            'lastName' => 'required|string|max:255',
+            'dateOfBirth' => 'required|date',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $user = User::create([
-            'name'=>$request->name,
+            'firstName'=>$request->firstName,
+            'lastName'=>$request->lastName,
+            'dateOfBirth'=>$request->dateOfBirth,
             'email'=>$request->email,
-            'password'=>Hash::make($request->password)
+            'password'=>Hash::make($request->password),
+            'role' => 'user',
         ]);
 
         $token = JWTAuth::fromUser($user);
@@ -53,6 +58,7 @@ class AuthController extends Controller
         return response()->json([
             'user' => $user->makeHidden(['password']),
             'token' => $token,
+            'role' => $user->role,
         ]);
     }
 

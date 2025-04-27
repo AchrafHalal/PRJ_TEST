@@ -23,7 +23,10 @@ export default function Admin() {
     const getRows = async () => {
       const data = await fetchRows();
       setRowData(data);
+
+      console.log(data);
     };
+    
 
     getRows();
   }, []);
@@ -48,11 +51,15 @@ export default function Admin() {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 70 },
-    { field: 'name', headerName: 'Name', width: 130 },
+    { field: 'firstName', headerName: 'First Name', width: 130 },
+    { field: 'lastName', headerName: 'Last Name', width: 130 },
     { field: 'email', headerName: 'Email', width: 200 },
     {
       field: 'role',
       headerName: 'Role',
+      display:'flex',
+      justifyContent: 'center',
+      alignItems:'center',
       width: 200,
       renderCell: (params) => {
         const role = params.value || 'user';
@@ -91,6 +98,9 @@ export default function Admin() {
     {
       field: 'action',
       headerName: 'Action',
+      display:'flex',
+      justifyContent:'center',
+      alignItems:'center',
       width: 160,
       renderCell: (params) => {
         const isAdmin = params.row.role === 'admin';

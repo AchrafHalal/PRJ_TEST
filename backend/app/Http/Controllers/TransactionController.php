@@ -18,6 +18,14 @@ class TransactionController extends Controller
         return $user->transactions()->latest()->get();
     }
 
+    public function viewTransaction($id)
+    {
+        $user=Auth::user();
+        $transaction = $user->transactions()->where('id',$id)->get();
+
+        return response()->json($transaction);
+    }
+
     // Store a new transaction
     public function store(Request $request)
     {

@@ -77,8 +77,9 @@ const InitForm = () => {
         fontFamily: "'Inter', sans-serif",
         flexGrow: 1,
         px: 3,
-        mt: 70,
-      }}
+        
+      }
+    }
     >
       <Typography
         variant="h2"

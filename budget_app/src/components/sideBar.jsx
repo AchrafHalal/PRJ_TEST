@@ -84,7 +84,6 @@ export default function SideBar({ open, handleDrawerClose }) {
     { text: 'Goals & Budgets', icon: <FlagIcon />, path: '/goals' },
     { text: 'AI Coach', icon: <SmartToyIcon />, path: '/coach' },
     { text: 'Settings', icon: <SettingsOutlinedIcon />, path: '/settings' },
-    { text: 'Logout', icon: <LogoutOutlinedIcon />, path: '/logout' },
   ];
 
   return (
@@ -95,7 +94,9 @@ export default function SideBar({ open, handleDrawerClose }) {
         </IconButton>
       </DrawerHeader>
       <Divider />
-      <List>
+      
+      {/* Normal menu items */}
+      <List sx={{ flexGrow: 1 }}>
         {menuItems.map((item) => (
           <ListItem key={item.path} disablePadding sx={{ display: 'block' }}>
             <Tooltip title={open ? '' : item.text} placement="left">
@@ -128,7 +129,36 @@ export default function SideBar({ open, handleDrawerClose }) {
           </ListItem>
         ))}
       </List>
+
       <Divider />
+
+      {/* Logout Button at the bottom */}
+      <List>
+        <ListItem disablePadding sx={{ display: 'block', mb: 1 }}>
+          <Tooltip title={open ? '' : 'Logout'} placement="left">
+            <ListItemButton
+              onClick={() => navigate('/logout')}
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? 'initial' : 'center',
+                px: 2.5,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : 'auto',
+                  justifyContent: 'center',
+                }}
+              >
+                <LogoutOutlinedIcon />
+              </ListItemIcon>
+              <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </Tooltip>
+        </ListItem>
+      </List>
     </StyledDrawer>
   );
 }
+
