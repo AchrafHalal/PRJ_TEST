@@ -84,13 +84,13 @@ const InitForm = () => {
       <Typography
         variant="h2"
         sx={{
-          fontSize: { xs: '2rem', md: '3rem' },
-          mb: 5,
+          fontSize: { xs: '1rem', md: '2rem' },
+          mb: 2,
           color: '#303030',
           textAlign: 'center',
         }}
       >
-        Monthly Budget Form
+        Hello there Fill this form to begin your journey
       </Typography>
 
       <Paper
@@ -98,7 +98,7 @@ const InitForm = () => {
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          p: { xs: 3, md: 5 },
+          p: { xs: 2, md: 4 },
           backgroundColor: '#FFFFFF',
           maxWidth: 800,
           mx: 'auto',
@@ -118,7 +118,7 @@ const InitForm = () => {
           )}
 
           {/* --- Income Section --- */}
-          <Typography variant="h5" sx={{ mb: 3, color: '#2F3E46' }}>
+          <Typography variant="h6" sx={{ mb: 1, color: '#2F3E46' }}>
             Income Details
           </Typography>
 
@@ -152,14 +152,14 @@ const InitForm = () => {
               variant="outlined"
               fullWidth
               type="number"
-              sx={{ mt: 2 }}
+              sx={{ mt: 1 }}
             />
           </Collapse>
 
           <Divider sx={{ my: 4 }} />
 
           {/* --- Expense Section --- */}
-          <Typography variant="h5" sx={{ mb: 3, color: '#2F3E46' }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#2F3E46' }}>
             Expense Details
           </Typography>
 
@@ -211,7 +211,7 @@ const InitForm = () => {
           <Divider sx={{ my: 4 }} />
 
           {/* --- Goals Section --- */}
-          <Typography variant="h5" sx={{ mb: 3, color: '#2F3E46' }}>
+          <Typography variant="h6" sx={{ mb: 2, color: '#2F3E46' }}>
             Financial Goals
           </Typography>
 

@@ -36,8 +36,10 @@ const TransactionForm = () => {
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleAmountChange = (e) => {
-    const value = e.target.value;
-    if (/^\d*$/.test(value)) setForm({ ...form, amount: value });
+    let value = e.target.value.replace(',', '.');
+    if (/^\d*\.?\d*$/.test(value)) {
+      setForm({ ...form, amount: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -79,6 +81,10 @@ const TransactionForm = () => {
           <ArrowBackIcon />
         </IconButton>
       </Stack>
+      <Typography variant="h6" gutterBottom>
+      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
+    </Typography>
 
       <Paper
         elevation={3}
@@ -93,10 +99,7 @@ const TransactionForm = () => {
           gap: 3,
         }}
       >
-        <Typography variant="h6" gutterBottom>
-          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-          {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-        </Typography>
+        
 
 
         <Box sx={{ flex: 1 }}>
@@ -118,17 +121,28 @@ const TransactionForm = () => {
                 onChange={handleAmountChange}
                 required
                 fullWidth
-                inputProps={{ inputMode: 'numeric' }}
+                inputProps={{ step:" any" ,
+                              inputMode: "decimal" }}
               />
 
               <TextField
+                select
                 label="Category"
                 name="category"
                 value={form.category}
                 onChange={handleChange}
                 required
                 fullWidth
-              />
+              >
+                <MenuItem value="Rent">Rent</MenuItem>
+                <MenuItem value="Utilities">Utilities</MenuItem>
+                <MenuItem value="Entertainment">Entertainment</MenuItem>
+                <MenuItem value="Shoping">Shopping</MenuItem>
+                <MenuItem value="Food & Health">Food & Health</MenuItem>
+                <MenuItem value="Transportation">Transportation</MenuItem>
+                <MenuItem value="Bills">Bills</MenuItem>
+                <MenuItem value="others">Others</MenuItem>
+              </TextField>  
 
               <TextField
                 select

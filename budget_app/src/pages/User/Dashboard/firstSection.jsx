@@ -1,72 +1,56 @@
-import React from 'react';
-import { Paper, Stack, Typography } from '@mui/material';
-import { FaMoneyBillWave, FaRegMoneyBillAlt, FaWallet, FaCalendarAlt } from 'react-icons/fa';
-import axios from 'axios';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import { Grid, Box } from "@mui/material";
 
-export default function FirstSection() {
-    const [salary, setSalary] = useState(null);
-    const [expenses, setExpenses] = useState(null);
-    const [incomes, setIncomes] = useState(null);
-    const [monthlyIncome, setMonthlyIncome] = useState(null);
-    const [monthlyExpenses, setMonthlyExpenses] = useState(null);
+import BalanceCard from "./Cards/BalanceCard";
+import IncomeCard from "./Cards/IncomeCard";
+import ExpenseCard from "./Cards/ExpenseCard";
 
-    const token = localStorage.getItem('token');
+export default function FirstSection({profileData}) {
+  const [salary, setSalary] = useState(null);
+  const [expenses, setExpenses] = useState(null);
+  const [incomes, setIncomes] = useState(null);
+  const [monthlyIncome, setMonthlyIncome] = useState(null);
+  const [monthlyExpenses, setMonthlyExpenses] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (!token) {
-                console.error('Token not available!');
-                return;
-            }
 
-            try {
-                const res = await axios.get('http://localhost:8000/api/user/profile', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
-                setSalary(res.data.profile.salary); 
-                setExpenses(res.data.combined_total_expenses);
-                setIncomes(res.data.combined_total_income);
-                setMonthlyIncome(res.data.monthly_income);
-                setMonthlyExpenses(res.data.monthly_expenses);
-                console.log(res.data);
-                
-            } catch (error) {
-                console.error('Error fetching user profile:', error);
-            }
-        };
+  useEffect(() => {
+    if (profileData) {
+      
+      setSalary(profileData.profile.salary);
+      setExpenses(profileData.combined_total_expenses);
+      setIncomes(profileData.combined_total_income);
+      setMonthlyIncome(profileData.monthly_income);
+      setMonthlyExpenses(profileData.monthly_expenses);
+    }
+  }, [profileData])
 
-        fetchData();
-    }, [token]);
+  const percentChangeIncome = rescaleChange(monthlyIncome, incomes);
+  const percentChangeExpenses = rescaleChange(monthlyExpenses, expenses);
 
-    const CardData = [
-        { title: "My balance", amount: salary ? `$${salary}` : "$0", icon: <FaMoneyBillWave size={40} /> },
-        { title: "Monthly income", amount: monthlyIncome ? `$${monthlyIncome.toFixed(2)}` : "$0", icon: <FaRegMoneyBillAlt size={40} /> },
-        { title: "Monthly expenses", amount: monthlyExpenses ? `$${monthlyExpenses.toFixed(2)}` : "$0", icon: <FaWallet size={40} /> },
-        { title: "All-time balance", amount: incomes && expenses ? `$${(incomes - expenses).toFixed(2)}` : "$0", icon: <FaCalendarAlt size={40} /> },
-    ];
+  return (
+    <Box sx={{display:'flex', flexDirection:'row', gap:2}} spacing={3}>
+      <Grid item xs={12} md={4} flexGrow={1}>
+        <BalanceCard balance={salary} />
+      </Grid>
+      <Grid item xs={12} md={4}>
+        <IncomeCard
+          totalIncome={monthlyIncome}
+          percentChange={percentChangeIncome}
+        />
+      </Grid>
+      <Grid item xs={12} md={4}>
+        <ExpenseCard
+          totalExpenses={monthlyExpenses}
+          percentChange={percentChangeExpenses}
+        />
+      </Grid>
+      
+    </Box>
+  );
+}
 
-    return (
-        <div>
-            <Stack direction="row" justifyContent={{ xs: 'center', sm: 'space-between' }} sx={{ flexWrap: 'wrap' }}>
-                {CardData.map((item, index) => (
-                    <Paper key={index} sx={{ p: 1.5, display: 'flex', m: 2, minWidth: 250 }}>
-                        <div style={{ fontSize: 50, color: 'inherit', marginRight: 10 }}>
-                            {item.icon}
-                        </div>
-                        <Stack direction='column'>
-                            <Typography variant="h6" color="textPrimary">
-                                {item.title}
-                            </Typography>
-                            <Typography variant="h4" color="textSecondary">
-                                {item.amount}
-                            </Typography>
-                        </Stack>
-                    </Paper>
-                ))}
-            </Stack>
-        </div>
-    );
+// Optional helper to calculate percent change (can be customized)
+function rescaleChange(currentMonth, total) {
+  if (!currentMonth || !total || total === 0) return 0;
+  return ((currentMonth / total) * 100).toFixed(1);
 }

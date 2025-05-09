@@ -15,8 +15,8 @@ class TransactionFactory extends Factory
             'user_id' => 4,
             'amount' => $this->faker->randomFloat(2, 10, 2000),
             'category' => $this->faker->randomElement([
-                'Salary', 'Freelance', 'Groceries', 'Rent', 'Utilities',
-                'Transport', 'Entertainment', 'Investment', 'Insurance', 'Subscriptions'
+                'Rent', 'Utilities', 'Groceries', 'Entertainement', 'Food & Health',
+                'Transport', 'Subscriptions'
             ]),
             'type' => $type,
             'date' => $this->faker->dateTimeBetween('01-01-' . now()->year, '31-05-' . now()->year),

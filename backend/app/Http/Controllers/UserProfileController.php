@@ -95,6 +95,48 @@ class UserProfileController extends Controller
     return response()->json($summary);
 }
 
+public function overview()
+{
+    $user = Auth::user();
+    $today = Carbon::today();
+    $now = Carbon::now();
+    $startOfWeek = Carbon::now()->startOfWeek();
+    $startOfMonth = Carbon::now()->startOfMonth();
+
+    $daily = $user->transactions()
+        ->whereDate('date', $today)
+        ->where('type', 'expense')
+        ->sum('amount');
+
+    $weekly = $user->transactions()
+        ->whereBetween('date', [$startOfWeek, now()])
+        ->where('type', 'expense')
+        ->sum('amount');
+
+    $profile = UserProfile::where('user_id', $user->id)->first();
+
+    $monthly = $profile
+        ? $profile->getCombinedTotalExpensesByMonth($now->month, $now->year)
+        : $user->transactions()
+            ->whereBetween('date', [$startOfMonth, now()])
+            ->where('type', 'expense')
+            ->sum('amount');
+
+    $category_expenses = $profile
+        ? $profile->getCategory($now->month, $now->year)
+        : [];
+
+    return response()->json([
+        'daily' => (float) $daily,
+        'weekly' => (float) $weekly,
+        'monthly' => (float) $monthly,
+        'category_expenses' => $category_expenses,
+    ]);
+}
+
+
+
+
 
 
 }

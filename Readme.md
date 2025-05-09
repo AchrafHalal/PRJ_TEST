@@ -5,3 +5,5 @@ npm install recharts
 npm install @mui/material @emotion/react @emotion/styled
 
 npm install @mui/icons-material
+
+composer require barryvdh/laravel-dompdf

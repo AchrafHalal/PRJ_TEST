@@ -52,7 +52,7 @@ class TransactionController extends Controller
 
         $validated = $request->validate([
             'amount'      => 'sometimes|numeric',
-            'category'    => 'sometimes|string|max:255',
+            'category'    => 'sometimes|string|max:255', 
             'type'        => 'sometimes|in:income,expense',
             'date'        => 'sometimes|date',
             'description' => 'nullable|string',
