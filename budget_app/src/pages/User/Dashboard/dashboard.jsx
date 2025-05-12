@@ -7,7 +7,12 @@ import ThirdSection from "./thirdSection";
 import ExpensesOverviewCard from "./Cards/ExpensesOverviewCard";
 import TipCard from "../TipCard/TipCard";
 
+
 export default function Dashboard({ profileData, firstName, overviewData, onDownloadReport }) {
+  
+    
+
+  
   return (
     <div>
       <Box
@@ -40,7 +45,7 @@ export default function Dashboard({ profileData, firstName, overviewData, onDown
 
       <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flex: 3 }}>
-          <FirstSection profileData={profileData} />
+          <FirstSection profileData={profileData}  />
           <SecondSection />
         </Box>
 
@@ -49,6 +54,7 @@ export default function Dashboard({ profileData, firstName, overviewData, onDown
             chartData={overviewData.chartData}
             totals={overviewData.totals}
           />
+          
           <TipCard />
         </Box>
       </Box>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -10,30 +10,30 @@ import {
   Divider,
   Button,
   Alert,
-} from '@mui/material';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+} from "@mui/material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const InitForm = () => {
   const [formData, setFormData] = useState({
-    salary: '',
-    otherIncome: '',
-    rent: '',
-    utilities: '',
-    transport: '',
-    groceries: '',
-    insurance: '',
-    entertainment: '',
-    subscriptions: '',
-    savingsGoal: '',
-    savingsTarget: '',
+    salary: "",
+    otherIncome: "",
+    rent: "",
+    utilities: "",
+    transport: "",
+    groceries: "",
+    insurance: "",
+    entertainment: "",
+    subscriptions: "",
+    savingsGoal: "",
+    savingsTarget: "",
   });
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [showOtherIncome, setShowOtherIncome] = useState(false);
   const [showSubscriptions, setShowSubscriptions] = useState(false);
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,52 +42,77 @@ const InitForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      setErrorMessage('Authentication token is missing. Please log in again.');
+      setErrorMessage("Authentication token is missing. Please log in again.");
       return;
     }
 
     try {
-      const res = await axios.post('http://localhost:8000/api/user/setup', formData, {
+      // 1. Setup user financial data
+      const setupPayload = {
+        salary: formData.salary,
+        otherIncome: showOtherIncome ? formData.otherIncome : 0,
+        rent: formData.rent,
+        utilities: formData.utilities,
+        transport: formData.transport,
+        groceries: formData.groceries,
+        insurance: formData.insurance,
+        entertainment: formData.entertainment,
+        subscriptions: showSubscriptions ? formData.subscriptions : 0,
+      };
+
+      await axios.post("http://localhost:8000/api/user/setup", setupPayload, {
         headers: {
           Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
+          Accept: "application/json",
         },
       });
 
-      console.log('Data submitted successfully:', res.data);
-      setSuccessMessage('Form submitted successfully!');
-      navigate('/dashboard');
+      // 2. Submit goal data
+      if (formData.savingsGoal && formData.savingsTarget) {
+        const goalPayload = {
+          name: formData.savingsGoal,
+          target_amount: formData.savingsTarget,
+        };
+
+        await axios.post("http://localhost:8000/api/goal", goalPayload, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        });
+      }
+
+      setSuccessMessage("Form submitted successfully!");
       setErrorMessage(null);
+      navigate("/dashboard");
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error("Submission error:", error);
       setSuccessMessage(null);
-      setErrorMessage(error.response?.data?.message || 'Error submitting form');
+      setErrorMessage(error.response?.data?.message || "Error submitting form");
     }
   };
 
   return (
     <Box
       sx={{
-        backgroundColor: '#EDEEE9',
-        minHeight: '100vh',
+        backgroundColor: "#EDEEE9",
+        minHeight: "100vh",
         p: { xs: 3, md: 6 },
         fontFamily: "'Inter', sans-serif",
         flexGrow: 1,
         px: 3,
-        
-      }
-    }
+      }}
     >
       <Typography
         variant="h2"
         sx={{
-          fontSize: { xs: '1rem', md: '2rem' },
+          fontSize: { xs: "1rem", md: "2rem" },
           mb: 2,
-          color: '#303030',
-          textAlign: 'center',
+          color: "#303030",
+          textAlign: "center",
         }}
       >
         Hello there Fill this form to begin your journey
@@ -96,12 +121,12 @@ const InitForm = () => {
       <Paper
         elevation={4}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
+          display: "flex",
+          flexDirection: "column",
           p: { xs: 2, md: 4 },
-          backgroundColor: '#FFFFFF',
+          backgroundColor: "#FFFFFF",
           maxWidth: 800,
-          mx: 'auto',
+          mx: "auto",
           borderRadius: 4,
         }}
       >
@@ -118,7 +143,7 @@ const InitForm = () => {
           )}
 
           {/* --- Income Section --- */}
-          <Typography variant="h6" sx={{ mb: 1, color: '#2F3E46' }}>
+          <Typography variant="h6" sx={{ mb: 1, color: "#2F3E46" }}>
             Income Details
           </Typography>
 
@@ -159,17 +184,17 @@ const InitForm = () => {
           <Divider sx={{ my: 4 }} />
 
           {/* --- Expense Section --- */}
-          <Typography variant="h6" sx={{ mb: 2, color: '#2F3E46' }}>
+          <Typography variant="h6" sx={{ mb: 2, color: "#2F3E46" }}>
             Expense Details
           </Typography>
 
           {[
-            { label: 'Rent / Mortgage', name: 'rent' },
-            { label: 'Utilities (Water, Electricity)', name: 'utilities' },
-            { label: 'Transportation (Gas, Bus, etc.)', name: 'transport' },
-            { label: 'Food & Groceries', name: 'groceries' },
-            { label: 'Insurance (Health, Car, etc.)', name: 'insurance' },
-            { label: 'Entertainment & Shopping', name: 'entertainment' },
+            { label: "Rent / Mortgage", name: "rent" },
+            { label: "Utilities (Water, Electricity)", name: "utilities" },
+            { label: "Transportation (Gas, Bus, etc.)", name: "transport" },
+            { label: "Food & Groceries", name: "groceries" },
+            { label: "Insurance (Health, Car, etc.)", name: "insurance" },
+            { label: "Entertainment & Shopping", name: "entertainment" },
           ].map((field, index) => (
             <TextField
               key={field.name}
@@ -211,7 +236,7 @@ const InitForm = () => {
           <Divider sx={{ my: 4 }} />
 
           {/* --- Goals Section --- */}
-          <Typography variant="h6" sx={{ mb: 2, color: '#2F3E46' }}>
+          <Typography variant="h6" sx={{ mb: 2, color: "#2F3E46" }}>
             Financial Goals
           </Typography>
 
@@ -239,7 +264,7 @@ const InitForm = () => {
             type="submit"
             variant="contained"
             color="primary"
-            sx={{ mt: 4, alignSelf: 'flex-end' }}
+            sx={{ mt: 4, alignSelf: "flex-end" }}
           >
             Submit
           </Button>

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\UserProfile;
+use App\Models\Goal;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
@@ -36,7 +37,17 @@ class UserProfileController extends Controller
             array_merge($validated, ['setup_completed' => true])
         );
 
-        
+        if ($request->filled(['goal_name', 'target_amount', 'monthly_saving'])) {
+            Goal::create([
+                'user_id' => $user->id,
+                'goal_name' => $request->goal_name,
+                'target_amount' => $request->target_amount,
+                'monthly_saving' => $request->monthly_saving,
+                'notes' => $request->notes,
+            ]);
+        }
+
+
 
         return response()->json([
             'message' => 'Profile setup saved successfully.',
@@ -51,17 +62,17 @@ class UserProfileController extends Controller
     {
         $user = Auth::user();
         $profile = UserProfile::where('user_id', $user->id)->first();
-    
+
         if (!$profile) {
             return response()->json(['message' => 'User profile not found'], 404);
         }
-    
-        $now = Carbon::now(); 
-    
+
+        $now = Carbon::now();
+
         // Calculate monthly incomes and expenses
         $monthlyIncome = $profile->getCombinedTotalIncomeByMonth($now->month, $now->year);
         $monthlyExpenses = $profile->getCombinedTotalExpensesByMonth($now->month, $now->year);
-    
+
         return response()->json([
             'profile' => $profile,
             'combined_total_income' => $profile->combined_total_income,
@@ -72,71 +83,65 @@ class UserProfileController extends Controller
     }
 
     public function monthlySummary()
-{
-    $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $transactions = $user->transactions()
-        ->selectRaw('MONTH(date) as month, 
+        $transactions = $user->transactions()
+            ->selectRaw('MONTH(date) as month, 
                      SUM(CASE WHEN type = "income" THEN amount ELSE 0 END) as income, 
                      SUM(CASE WHEN type = "expense" THEN amount ELSE 0 END) as expenses')
-        ->groupByRaw('MONTH(date)')
-        ->orderByRaw('MONTH(date)')
-        ->get();
+            ->groupByRaw('MONTH(date)')
+            ->orderByRaw('MONTH(date)')
+            ->get();
 
-    // Format month number to month name (1 => January, etc.)
-    $summary = $transactions->map(function($transaction) {
-        return [
-            'month' => date('F', mktime(0, 0, 0, $transaction->month, 1)),
-            'income' => (float) $transaction->income,
-            'expenses' => (float) $transaction->expenses,
-        ];
-    });
+        // Format month number to month name (1 => January, etc.)
+        $summary = $transactions->map(function ($transaction) {
+            return [
+                'month' => date('F', mktime(0, 0, 0, $transaction->month, 1)),
+                'income' => (float) $transaction->income,
+                'expenses' => (float) $transaction->expenses,
+            ];
+        });
 
-    return response()->json($summary);
-}
+        return response()->json($summary);
+    }
 
-public function overview()
-{
-    $user = Auth::user();
-    $today = Carbon::today();
-    $now = Carbon::now();
-    $startOfWeek = Carbon::now()->startOfWeek();
-    $startOfMonth = Carbon::now()->startOfMonth();
+    public function overview()
+    {
+        $user = Auth::user();
+        $today = Carbon::today();
+        $now = Carbon::now();
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $startOfMonth = Carbon::now()->startOfMonth();
 
-    $daily = $user->transactions()
-        ->whereDate('date', $today)
-        ->where('type', 'expense')
-        ->sum('amount');
+        $daily = $user->transactions()
+            ->whereDate('date', $today)
+            ->where('type', 'expense')
+            ->sum('amount');
 
-    $weekly = $user->transactions()
-        ->whereBetween('date', [$startOfWeek, now()])
-        ->where('type', 'expense')
-        ->sum('amount');
+        $weekly = $user->transactions()
+            ->whereBetween('date', [$startOfWeek, now()])
+            ->where('type', 'expense')
+            ->sum('amount');
 
-    $profile = UserProfile::where('user_id', $user->id)->first();
+        $profile = UserProfile::where('user_id', $user->id)->first();
 
-    $monthly = $profile
-        ? $profile->getCombinedTotalExpensesByMonth($now->month, $now->year)
-        : $user->transactions()
+        $monthly = $profile
+            ? $profile->getCombinedTotalExpensesByMonth($now->month, $now->year)
+            : $user->transactions()
             ->whereBetween('date', [$startOfMonth, now()])
             ->where('type', 'expense')
             ->sum('amount');
 
-    $category_expenses = $profile
-        ? $profile->getCategory($now->month, $now->year)
-        : [];
+        $category_expenses = $profile
+            ? $profile->getCategory($now->month, $now->year)
+            : [];
 
-    return response()->json([
-        'daily' => (float) $daily,
-        'weekly' => (float) $weekly,
-        'monthly' => (float) $monthly,
-        'category_expenses' => $category_expenses,
-    ]);
-}
-
-
-
-
-
-
+        return response()->json([
+            'daily' => (float) $daily,
+            'weekly' => (float) $weekly,
+            'monthly' => (float) $monthly,
+            'category_expenses' => $category_expenses,
+        ]);
+    }
 }

@@ -9,7 +9,19 @@ export default function BalanceCard({ balance }) {
   }).format(balance || 0);
 
   return (
-    <Paper elevation={3} sx={{ p: 2, borderRadius: 3 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        borderRadius: "16px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        backgroundColor: "#ffffff",
+        padding: "16px",
+        "&:hover": {
+          transform: "scale(1.01)",
+          transition: "0.3s ease-in-out",
+        },
+      }}
+    >
       <Typography variant="h6" color="text.secondary" gutterBottom>
         Total Balance
       </Typography>

@@ -2,10 +2,22 @@ import React from "react";
 import { Card, CardContent, Typography, Box, Stack } from "@mui/material";
 import { RadialBarChart, RadialBar } from "recharts";
 
-
 const ExpensesOverviewCard = ({ chartData = [], totals = {} }) => {
   return (
-    <Card elevation={3} sx={{ borderRadius: 3, mb: 2 }}>
+    <Card
+      elevation={3}
+      sx={{
+        borderRadius: "16px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        backgroundColor: "#ffffff",
+        padding: "16px",
+        mb: 2,
+        "&:hover": {
+          transform: "scale(1.01)",
+          transition: "0.3s ease-in-out",
+        },
+      }}
+    >
       <CardContent>
         <Typography variant="subtitle1" gutterBottom>
           All expenses
@@ -43,7 +55,12 @@ const ExpensesOverviewCard = ({ chartData = [], totals = {} }) => {
 
         <Box mt={1}>
           {chartData.map((item, idx) => (
-            <Stack key={idx} direction="row" justifyContent="space-between" mb={0.5}>
+            <Stack
+              key={idx}
+              direction="row"
+              justifyContent="space-between"
+              mb={0.5}
+            >
               <Stack direction="row" spacing={1} alignItems="center">
                 <Box
                   sx={{

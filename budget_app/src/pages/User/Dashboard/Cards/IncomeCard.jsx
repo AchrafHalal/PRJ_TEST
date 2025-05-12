@@ -9,7 +9,19 @@ export default function IncomeCard({ totalIncome, percentChange }) {
   }).format(totalIncome || 0);
 
   return (
-    <Paper elevation={3} sx={{ p: 2, borderRadius: 3 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        borderRadius: "16px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        backgroundColor: "#ffffff",
+        padding: "16px",
+        "&:hover": {
+          transform: "scale(1.01)",
+          transition: "0.3s ease-in-out",
+        },
+      }}
+    >
       <Typography variant="h6" color="text.secondary" gutterBottom>
         Monthly Income
       </Typography>
@@ -22,7 +34,8 @@ export default function IncomeCard({ totalIncome, percentChange }) {
       <Typography variant="body2" color="text.secondary" mt={1}>
         {percentChange >= 0
           ? `↑ ${percentChange}% increase`
-          : `↓ ${Math.abs(percentChange)}% decrease`} from last month
+          : `↓ ${Math.abs(percentChange)}% decrease`}{" "}
+        from last month
       </Typography>
     </Paper>
   );

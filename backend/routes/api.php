@@ -7,6 +7,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\GoalController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -26,8 +27,15 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/viewTransaction/{id}', [TransactionController::class, 'viewTransaction']); 
     Route::put('/updateTransaction/{id}', [TransactionController::class, 'update']);
     Route::get('/notifications', [NotificationController::class, 'getNotifications']);
-    Route::get('/report/view', [ReportController::class, 'viewPdfReport']);
+    Route::get('/report/view/{year?}/{month?}', [ReportController::class, 'viewPdfReport']);
     Route::get('/report/download', [ReportController::class, 'downloadPdfReport']);
+    Route::get('/reports/months', [ReportController::class, 'availableMonths']);
+    Route::get('/reports/{year}/{month}', [ReportController::class, 'monthlyReport']);
+     Route::get('/goals', [GoalController::class, 'index']);        
+    Route::post('/goals', [GoalController::class, 'store']);        
+    Route::get('/goals/{id}', [GoalController::class, 'show']);     
+    Route::put('/goals/{id}', [GoalController::class, 'update']);   
+    Route::delete('/goals/{id}', [GoalController::class, 'destroy']);
 });
 
 Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {

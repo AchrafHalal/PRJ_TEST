@@ -16,9 +16,11 @@ import Signup from "./pages/Auth/Signup/signup";
 import Admin from "./pages/Admin/ListUsers/admin";
 import ViewUser from "./pages/Admin/viewUser/viewUser";
 import UpdateTrs from "./pages/User/TransactionList/update/updateTransaction";
+import MonthlyReports from "./pages/User/Reports/MonthlyReports";
 import "./App.css";
+import GoalForm from "./pages/User/Goals/GoalForm";
+import EditGoalForm from "./pages/User/Goals/EditGoal";
 
-const Reports = () => <h1>Reports</h1>;
 const Goals = () => <h1>Goals & Budgets</h1>;
 const Settings = () => <h1>Settings</h1>;
 const Logout = () => {
@@ -212,7 +214,7 @@ export default function App() {
                         path="/transactions"
                         element={<TransactionList />}
                       />
-                      <Route path="/reports" element={<Reports />} />
+                      <Route path="/reports" element={<MonthlyReports />} />
                       {isAdmin && <Route path="/admin" element={<Admin />} />}
                       {isAdmin && (
                         <Route
@@ -225,7 +227,8 @@ export default function App() {
                         element={<UpdateTrs />}
                       />
                       <Route path="/coach" element={<InitForm />} />
-                      <Route path="/settings" element={<Settings />} />
+                      <Route path="/settings" element={<GoalForm />} />
+                      <Route path="/editGoal" element={<EditGoalForm />} />
                       <Route path="*" element={<h1>Page Not Found</h1>} />
                     </Routes>
                   </Box>
