@@ -11,7 +11,7 @@ class Goal extends Model
         'user_id',
         'name',
         'target_amount',
-        'monthly_saving',
+        'saved_amount',
         'notes',
     ];
 

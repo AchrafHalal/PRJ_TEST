@@ -104,7 +104,7 @@ class UserProfile extends Model
 
         $categories = [
             'Necessaries' => ['Rent', 'Utilities'],
-            'Entertainement' => ['Entertainement'],
+            'Entertainement' => ['Entertainement','Shoping'],
             'Transportation' => ['Transport'],
             'Food' => ['Food & Health'],
             'Subscriptions' => ['Subscriptions'],

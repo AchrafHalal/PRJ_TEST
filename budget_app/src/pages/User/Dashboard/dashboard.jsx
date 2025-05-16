@@ -6,9 +6,10 @@ import SecondSection from "./secondSection";
 import ThirdSection from "./thirdSection";
 import ExpensesOverviewCard from "./Cards/ExpensesOverviewCard";
 import TipCard from "../TipCard/TipCard";
+import MonthlyChart from "../charts/MonthlyChart";
 
 
-export default function Dashboard({ profileData, firstName, overviewData, onDownloadReport }) {
+export default function Dashboard({ profileData, firstName, overviewData, onDownloadReport, monthlySummary, transactions, goals  }) {
   
     
 
@@ -46,7 +47,7 @@ export default function Dashboard({ profileData, firstName, overviewData, onDown
       <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flex: 3 }}>
           <FirstSection profileData={profileData}  />
-          <SecondSection />
+          <SecondSection data={monthlySummary} goals={goals} />
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
@@ -59,7 +60,7 @@ export default function Dashboard({ profileData, firstName, overviewData, onDown
         </Box>
       </Box>
 
-      <ThirdSection />
+      <ThirdSection data={transactions} />
     </div>
   );
 }

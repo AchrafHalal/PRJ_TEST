@@ -1,143 +1,157 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
 import {
   Box,
   Typography,
-  Paper,
-  Button,
-  Alert,
+  Divider,
   TextField,
-} from '@mui/material';
+  Button,
+  IconButton,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material";
+import axios from "axios";
 
-export default function GoalForm() {
-  const [data, setData] = useState({
-    goalName: '',
-    targetAmount: '',
-    saving: '',
-    notes: '',
+const CreateGoalForm = ({ onGoalCreated }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    target_amount: "",
+    saved_amount: "",
+    notes: "",
   });
 
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
-
     try {
-      await axios.post('http://localhost:8000/api/goals', data);
-      setSuccessMessage('Goal created successfully!');
-      setData({
-        goalName: '',
-        targetAmount: '',
-        saving: '',
-        notes: '',
+      await axios.post("http://localhost:8000/api/goals", formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
-
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
+      if (onGoalCreated) onGoalCreated();
+      setFormData({ name: "", target_amount: "", saved_amount: "", notes: "" });
     } catch (error) {
-      const message = error.response?.data?.message || 'An error occurred while creating the goal.';
-      setErrorMessage(message);
+      console.error("Failed to create goal", error);
     }
   };
 
   return (
     <Box
       sx={{
-        backgroundColor: '#EDEEE9',
-        minHeight: '100vh',
-        p: { xs: 3, md: 6 },
-        fontFamily: "'Inter', sans-serif",
-        flexGrow: 1,
-        px: 3,
+        maxWidth: 900,
+        mx: "auto",
+        mt: 6,
+        p: 4,
+        boxShadow: 4,
+        borderRadius: 3,
+        backgroundColor: theme.palette.background,
       }}
     >
-      <Paper
-        elevation={4}
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          p: { xs: 3, md: 5 },
-          backgroundColor: '#FFFFFF',
-          maxWidth: 800,
-          mx: 'auto',
-          borderRadius: 4,
-        }}
-      >
-        <Typography variant="h6" mb={3}>
-          Add New Goal
-        </Typography>
+      <Box container sx={{ display: "flex", justifyContent: "space-between" }}>
+        {/* Left Side - Typography */}
+        <Box sx={{ display: "flex", justifyContent: "space-between", mr:'5px' }}>
+          <Box>
+            <Typography variant="h5" fontWeight={600} gutterBottom>
+              Create a Goal
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Set a goal to start tracking your financial progress. You can
+              define the name, target amount, and add notes.
+            </Typography>
+          </Box>
 
-        {errorMessage && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-        {successMessage && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {successMessage}
-          </Alert>
-        )}
+          <Box
+            item
+            md="auto"
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "stretch",
+              px: 1,
+              height: "150px",
+            }}
+          >
+            <Divider orientation="vertical" flexItem />
+          </Box>
+        </Box>
 
-        <TextField
-          label="Goal Name"
-          name="goalName"
-          value={data.goalName}
-          onChange={handleChange}
-          fullWidth
-          required
-          sx={{ mb: 3 }}
-          size="small"
-        />
-        <TextField
-          label="Target Amount"
-          name="targetAmount"
-          value={data.targetAmount}
-          onChange={handleChange}
-          fullWidth
-          required
-          type="number"
-          sx={{ mb: 3 }}
-          size="small"
-        />
-        <TextField
-          label="Monthly Saving Estimate"
-          name="saving"
-          value={data.saving}
-          onChange={handleChange}
-          fullWidth
-          type="number"
-          sx={{ mb: 3 }}
-          size="small"
-        />
-        <TextField
-          label="Notes / Description (optional)"
-          name="notes"
-          value={data.notes}
-          onChange={handleChange}
-          fullWidth
-          multiline
-          rows={3}
-          sx={{ mb: 3 }}
-          size="small"
-        />
+        {/* Right Side - Form */}
+        <Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" fontWeight={500}>
+              Goal Details
+            </Typography>
+            <IconButton onClick={() => navigate("/dashboard")} color="primary">
+              <ArrowBackIcon />
+            </IconButton>
+          </Box>
 
-        <Button type="submit" variant="contained" color="primary">
-          Save Goal
-        </Button>
-      </Paper>
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <TextField
+              label="Goal Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              fullWidth
+              required
+              margin="normal"
+            />
+            <TextField
+              label="Target Amount"
+              name="target_amount"
+              value={formData.target_amount}
+              onChange={handleChange}
+              type="number"
+              fullWidth
+              required
+              margin="normal"
+            />
+            <TextField
+              label="Saved Amount"
+              name="saved_amount"
+              value={formData.saved_amount}
+              onChange={handleChange}
+              type="number"
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Notes (optional)"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              multiline
+              rows={3}
+              fullWidth
+              margin="normal"
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 3, py: 1.5, fontWeight: 600 }}
+            >
+              Create Goal
+            </Button>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
-}
+};
+
+export default CreateGoalForm;

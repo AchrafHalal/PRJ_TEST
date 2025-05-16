@@ -77,7 +77,7 @@ const InitForm = () => {
           target_amount: formData.savingsTarget,
         };
 
-        await axios.post("http://localhost:8000/api/goal", goalPayload, {
+        await axios.post("http://localhost:8000/api/goals", goalPayload, {
           headers: {
             Authorization: `Bearer ${token}`,
             Accept: "application/json",

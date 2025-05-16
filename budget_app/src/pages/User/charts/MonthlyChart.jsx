@@ -9,60 +9,10 @@ import {
   Legend,
 } from "recharts";
 import { Paper, Typography, useTheme } from "@mui/material";
-import axios from "axios";
-import { useEffect, useState } from "react";
 
-export default function MonthlyChart() {
+
+export default function MonthlyChart({ data }) {
   const theme = useTheme();
-  const [data, setData] = useState([
-    { month: "Jan", income: 0, expenses: 0 },
-    { month: "Feb", income: 0, expenses: 0 },
-    { month: "Mar", income: 0, expenses: 0 },
-    { month: "Apr", income: 0, expenses: 0 },
-    { month: "May", income: 0, expenses: 0 },
-    { month: "Jun", income: 0, expenses: 0 },
-    { month: "Jul", income: 0, expenses: 0 },
-  ]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem("token");
-    
-      if (!token) {
-        console.error("Token is not available!!");
-        return;
-      }
-    
-      try {
-        const res = await axios.get("http://localhost:8000/api/user/monthly-summary", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-    
-        console.log("API Data:", res.data);
-    
-        setData((prevData) =>
-          prevData.map((item) => {
-            const found = res.data.find((d) => d.month.startsWith(item.month));
-            if (found) {
-              return {
-                ...item,
-                income: found.income,
-                expenses: found.expenses,
-              };
-            }
-            return item;
-          })
-        );
-      } catch (error) {
-        console.error("Error fetching profile data:", error);
-      }
-    };
-    
-
-    fetchData();
-  }, []);
 
   return (
     <Paper
@@ -110,3 +60,4 @@ export default function MonthlyChart() {
     </Paper>
   );
 }
+

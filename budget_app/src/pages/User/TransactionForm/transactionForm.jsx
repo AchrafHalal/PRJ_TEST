@@ -64,6 +64,9 @@ const TransactionForm = () => {
       console.log('Transaction added:', res.data);
       setForm({ amount: '', category: '', type: 'expense', date: '', description: '' });
       setSuccessMessage('Form submitted successfully!');
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 500);
       setErrorMessage(null);
     } catch (err) {
       console.error('Error:', err.response?.data || err.message);

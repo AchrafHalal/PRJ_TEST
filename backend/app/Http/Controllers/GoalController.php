@@ -21,7 +21,7 @@ class GoalController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'target_amount' => 'required|numeric|min:0',
-            'saved_amount' => 'nullable|numeric|min:0',
+            'saved_amount' => 'required|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
 

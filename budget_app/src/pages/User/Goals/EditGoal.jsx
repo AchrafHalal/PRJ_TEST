@@ -1,39 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
 import {
+  TextField,
+  Button,
   Box,
   Typography,
-  Paper,
-  Button,
-  Alert,
-  TextField,
-  CircularProgress,
-} from '@mui/material';
+  Divider,
+  IconButton,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import { useTheme } from "@mui/material";
 
-export default function EditGoalForm() {
-  const { id } = useParams(); 
+const EditGoal = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
 
-  const [data, setData] = useState({
-    goalName: '',
-    targetAmount: '',
-    saving: '',
-    notes: '',
+  const [formData, setFormData] = useState({
+    name: "",
+    target_amount: "",
+    saved_amount: "",
+    notes: "",
   });
-  const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+
+  const [loading, setLoading] = useState(false);
+  const theme = useTheme();
 
   useEffect(() => {
     const fetchGoal = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/goals/${id}`);
-        setData(response.data);
+        const res = await axios.get(`http://localhost:8000/api/goals/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        setFormData({
+          name: res.data.name || "",
+          target_amount: res.data.target_amount || "",
+          saved_amount: res.data.saved_amount || "",
+          notes: res.data.notes || "",
+        });
       } catch (error) {
-        setErrorMessage(error.response?.data?.message || 'Failed to load goal data.');
-      } finally {
-        setLoading(false);
+        console.error("Failed to fetch goal", error);
       }
     };
 
@@ -41,122 +49,136 @@ export default function EditGoalForm() {
   }, [id]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
-
     try {
-      await axios.put(`http://localhost:8000/api/goals/${id}`, data);
-      setSuccessMessage('Goal updated successfully!');
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 1000);
+      setLoading(true);
+      await axios.put(`http://localhost:8000/api/goals/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      navigate("/dashboard");
     } catch (error) {
-      const message = error.response?.data?.message || 'An error occurred while updating the goal.';
-      setErrorMessage(message);
+      console.error("Failed to update goal", error);
+    } finally {
+      setLoading(false);
     }
   };
-
-  if (loading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <Box
       sx={{
-        backgroundColor: '#EDEEE9',
-        minHeight: '100vh',
-        p: { xs: 3, md: 6 },
-        fontFamily: "'Inter', sans-serif",
-        flexGrow: 1,
-        px: 3,
+        maxWidth: 900,
+        mx: "auto",
+        mt: 6,
+        p: 4,
+        boxShadow: 4,
+        borderRadius: 3,
+        backgroundColor: theme.palette.background,
       }}
     >
-      <Paper
-        elevation={4}
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          p: { xs: 3, md: 5 },
-          backgroundColor: '#FFFFFF',
-          maxWidth: 800,
-          mx: 'auto',
-          borderRadius: 4,
-        }}
-      >
-        <Typography variant="h6" mb={3}>
-          Edit Goal
-        </Typography>
+      <Box container sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", mr:'5px' }}>
+          <Box sx={{ pr: 2, minWidth: 250 }}>
+            <Typography variant="h5" fontWeight={600} gutterBottom>
+              Edit a Goal
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Update your goal's name, target amount, progress, or notes. Keep
+              your financial targets up-to-date.
+            </Typography>
+          </Box>
 
-        {errorMessage && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {errorMessage}
-          </Alert>
-        )}
-        {successMessage && (
-          <Alert severity="success" sx={{ mb: 2 }}>
-            {successMessage}
-          </Alert>
-        )}
+          <Box
+            item
+            md="auto"
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignItems: "stretch",
+              px: 1,
+              height: "150px",
+            }}
+          >
+            <Divider orientation="vertical" flexItem />
+          </Box>
+        </Box>
 
-        <TextField
-          label="Goal Name"
-          name="goalName"
-          value={data.goalName}
-          onChange={handleChange}
-          fullWidth
-          required
-          sx={{ mb: 3 }}
-          size="small"
-        />
-        <TextField
-          label="Target Amount"
-          name="targetAmount"
-          value={data.targetAmount}
-          onChange={handleChange}
-          fullWidth
-          required
-          type="number"
-          sx={{ mb: 3 }}
-          size="small"
-        />
-        <TextField
-          label="Monthly Saving Estimate"
-          name="saving"
-          value={data.saving}
-          onChange={handleChange}
-          fullWidth
-          type="number"
-          sx={{ mb: 3 }}
-          size="small"
-        />
-        <TextField
-          label="Notes / Description"
-          name="notes"
-          value={data.notes}
-          onChange={handleChange}
-          fullWidth
-          multiline
-          rows={3}
-          sx={{ mb: 3 }}
-          size="small"
-        />
+        {/* Right Side - Form */}
+        <Box>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography variant="h6" fontWeight={500}>
+              Goal Details
+            </Typography>
+            <IconButton onClick={() => navigate("/dashboard")} color="primary">
+              <ArrowBackIcon />
+            </IconButton>
+          </Box>
 
-        <Button type="submit" variant="contained" color="primary">
-          Update Goal
-        </Button>
-      </Paper>
+          <Box component="form" onSubmit={handleSubmit} noValidate>
+            <TextField
+              label="Goal Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              fullWidth
+              required
+              margin="normal"
+            />
+            <TextField
+              label="Target Amount"
+              name="target_amount"
+              type="number"
+              value={formData.target_amount}
+              onChange={handleChange}
+              fullWidth
+              required
+              margin="normal"
+            />
+            <TextField
+              label="Saved Amount"
+              name="saved_amount"
+              type="number"
+              value={formData.saved_amount}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Notes"
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+              multiline
+              rows={3}
+              fullWidth
+              margin="normal"
+            />
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              sx={{ mt: 3, py: 1.5, fontWeight: 600 }}
+              disabled={loading}
+            >
+              {loading ? "Updating..." : "Update Goal"}
+            </Button>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
-}
+};
+
+export default EditGoal;

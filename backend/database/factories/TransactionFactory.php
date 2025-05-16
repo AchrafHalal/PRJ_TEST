@@ -12,7 +12,7 @@ class TransactionFactory extends Factory
         $type = $this->faker->randomElement(['income', 'expense']);
         
         return [
-            'user_id' => 4,
+            'user_id' => 2,
             'amount' => $this->faker->randomFloat(2, 10, 2000),
             'category' => $this->faker->randomElement([
                 'Rent', 'Utilities', 'Groceries', 'Entertainement', 'Food & Health',

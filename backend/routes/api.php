@@ -16,7 +16,10 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/profile', [AuthController::class, 'user']);
+    Route::get('/profileInfo/{id}', [AuthController::class, 'showUser']);
+    Route::put('/profileInfo', [AuthController::class, 'update']);
+    Route::delete('/user', [AuthController::class, 'destroy']);
     Route::post('/user/setup', [UserProfileController::class, 'store']);
     Route::get('/user/profile', [UserProfileController::class, 'show']);
     Route::get('/user/monthly-summary', [UserProfileController::class, 'monthlySummary']);
@@ -31,7 +34,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/report/download', [ReportController::class, 'downloadPdfReport']);
     Route::get('/reports/months', [ReportController::class, 'availableMonths']);
     Route::get('/reports/{year}/{month}', [ReportController::class, 'monthlyReport']);
-     Route::get('/goals', [GoalController::class, 'index']);        
+    Route::get('/goals', [GoalController::class, 'index']);        
     Route::post('/goals', [GoalController::class, 'store']);        
     Route::get('/goals/{id}', [GoalController::class, 'show']);     
     Route::put('/goals/{id}', [GoalController::class, 'update']);   

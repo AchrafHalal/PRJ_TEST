@@ -1,15 +1,50 @@
 import React from "react";
+import { useTheme } from "@mui/material";
+import { Doughnut } from "react-chartjs-2";
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Card, CardContent, Typography, Box, Stack } from "@mui/material";
-import { RadialBarChart, RadialBar } from "recharts";
+
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const ExpensesOverviewCard = ({ chartData = [], totals = {} }) => {
+
+  const theme = useTheme();
+  const labels = chartData.map((item) => item.name);
+  const dataValues = chartData.map((item) => item.value);
+  const backgroundColors = chartData.map((item) => item.fill);
+
+  const doughnutData = {
+    labels,
+    datasets: [
+      {
+        data: dataValues,
+        backgroundColor: backgroundColors,
+        borderWidth: 0,
+      },
+    ],
+  };
+
+  const options = {
+    cutout: "60%",
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.label}: ${ctx.raw}%`,
+        },
+      },
+    },
+  };
+
   return (
     <Card
       elevation={3}
       sx={{
         borderRadius: "16px",
         boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-        backgroundColor: "#ffffff",
+        backgroundColor: theme.palette.background.paper,
         padding: "16px",
         mb: 2,
         "&:hover": {
@@ -38,29 +73,15 @@ const ExpensesOverviewCard = ({ chartData = [], totals = {} }) => {
           </Typography>
         </Stack>
 
-        <Box display="flex" justifyContent="center" alignItems="center">
-          <RadialBarChart
-            width={180}
-            height={180}
-            cx="50%"
-            cy="50%"
-            innerRadius="20%"
-            outerRadius="100%"
-            barSize={10}
-            data={chartData}
-          >
-            <RadialBar minAngle={15} background clockWise dataKey="value" />
-          </RadialBarChart>
+        <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
+          <Box width={180} height={180}>
+            <Doughnut data={doughnutData} options={options} />
+          </Box>
         </Box>
 
-        <Box mt={1}>
+        <Box>
           {chartData.map((item, idx) => (
-            <Stack
-              key={idx}
-              direction="row"
-              justifyContent="space-between"
-              mb={0.5}
-            >
+            <Stack key={idx} direction="row" justifyContent="space-between" mb={0.5}>
               <Stack direction="row" spacing={1} alignItems="center">
                 <Box
                   sx={{

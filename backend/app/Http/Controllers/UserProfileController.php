@@ -37,12 +37,12 @@ class UserProfileController extends Controller
             array_merge($validated, ['setup_completed' => true])
         );
 
-        if ($request->filled(['goal_name', 'target_amount', 'monthly_saving'])) {
+        if ($request->filled(['name', 'target_amount', 'saved_amount'])) {
             Goal::create([
                 'user_id' => $user->id,
-                'goal_name' => $request->goal_name,
+                'name' => $request->name,
                 'target_amount' => $request->target_amount,
-                'monthly_saving' => $request->monthly_saving,
+                'saved_amount' => $request->saved_amount,
                 'notes' => $request->notes,
             ]);
         }
