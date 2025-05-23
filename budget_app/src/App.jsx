@@ -17,19 +17,14 @@ import Admin from "./pages/Admin/ListUsers/admin";
 import ViewUser from "./pages/Admin/viewUser/viewUser";
 import UpdateTrs from "./pages/User/TransactionList/update/updateTransaction";
 import MonthlyReports from "./pages/User/Reports/MonthlyReports";
-import "./App.css";
 import GoalForm from "./pages/User/Goals/GoalForm";
 import EditGoal from "./pages/User/Goals/EditGoal";
 import Profile from "./pages/Profile/profile";
 import EditPersonalInfo from "./pages/Profile/EditPersonalInfo";
+import "./App.css";
+import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard";
+import { fetchRows } from './pages/Admin/ListUsers/rows'; 
 
-const Goals = () => <h1>Goals & Budgets</h1>;
-const Settings = () => <h1>Settings</h1>;
-const Logout = () => {
-  localStorage.removeItem("token");
-  localStorage.clear();
-  return <Navigate to="/login" />;
-};
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -41,7 +36,17 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem("auth") === "true";
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  const profile = JSON.parse(localStorage.getItem("profileData") || "{}");
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" />;
+  }
+
+  if (profile?.profile && profile.profile.setupCompleted === false) {
+    return <Navigate to="/coach" />;
+  }
+
+  return children;
 };
 
 export default function App() {
@@ -49,48 +54,32 @@ export default function App() {
   const [mode, setMode] = useState(
     localStorage.getItem("currentMode") || "light"
   );
-  const [isAdmin] = useState(localStorage.getItem("isAdmin") === "admin");
+  const [profileData, setProfileData] = useState(null);
+  const isAdmin = profileData?.profile?.user?.role === "admin";
+
   const theme = useMemo(() => createTheme(getDesignTokens(mode)), [mode]);
 
   const token = localStorage.getItem("token");
-  const [profileData, setProfileData] = useState(null);
   const [firstName, setFirstName] = useState("");
   const [overviewData, setOverviewData] = useState({
     chartData: [],
     totals: { daily: 0, weekly: 0, monthly: 0 },
   });
   const [notifications, setNotifications] = useState([]);
-
   const [transactions, setTransactions] = useState([]);
-
   const [goals, setGoals] = useState([]);
-
-  const [monthlySummary, setMonthlySummary] = useState([
-    { month: "Jan", income: 0, expenses: 0 },
-    { month: "Feb", income: 0, expenses: 0 },
-    { month: "Mar", income: 0, expenses: 0 },
-    { month: "Apr", income: 0, expenses: 0 },
-    { month: "May", income: 0, expenses: 0 },
-    { month: "Jun", income: 0, expenses: 0 },
-    { month: "Jul", income: 0, expenses: 0 },
-  ]);
 
   const handleDownloadPDF = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:8000/api/report/download", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/pdf",
+        },
+      });
 
-      const response = await fetch(
-        "http://localhost:8000/api/report/download",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/pdf",
-          },
-        }
-      );
-
-      const blob = await response.blob();
+      const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -104,53 +93,70 @@ export default function App() {
 
   useEffect(() => {
     const fetchProfileAndOverview = async () => {
-      if (!token || profileData || overviewData.chartData.length > 0) return;
+      if (!token || profileData) return;
 
       try {
         const res = await axios.get("http://localhost:8000/api/user/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setProfileData(res.data);
-        setFirstName(res.data.profile.user.firstName);
+        const profile = res.data;
+        const role = profile?.profile?.user?.role;
 
-        const overviewRes = await axios.get(
-          "http://localhost:8000/api/expenses/overview",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        setProfileData(profile);
+        setFirstName(profile.profile.user.firstName);
+        localStorage.setItem("profileData", JSON.stringify(profile));
 
-        const {
-          daily,
-          weekly,
-          monthly,
-          category_expenses = [],
-        } = overviewRes.data;
+        // Only fetch overview if NOT admin
+        if (role !== "admin") {
+          const overviewRes = await axios.get(
+            "http://localhost:8000/api/expenses/overview",
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
-        const formattedChartData = category_expenses.map((item) => ({
-          name: item.name || item.category || "Unknown",
-          value:
-            monthly > 0
-              ? Number(((item.amount / monthly) * 100).toFixed(1))
-              : 0,
-          fill: item.fill || "#8884d8",
-        }));
+          const {
+            daily,
+            weekly,
+            monthly,
+            category_expenses = [],
+          } = overviewRes.data;
 
-        setOverviewData({
-          chartData:
-            formattedChartData.length > 0
-              ? formattedChartData
-              : [{ name: "No Data", value: 0, fill: "#e0e0e0" }],
-          totals: { daily, weekly, monthly },
-        });
+          const formattedChartData = category_expenses.map((item) => ({
+            name: item.name || item.category || "Unknown",
+            value:
+              monthly > 0
+                ? Number(((item.amount / monthly) * 100).toFixed(1))
+                : 0,
+            fill: item.fill || "#8884d8",
+          }));
+
+          setOverviewData({
+            chartData:
+              formattedChartData.length > 0
+                ? formattedChartData
+                : [{ name: "No Data", value: 0, fill: "#e0e0e0" }],
+            totals: { daily, weekly, monthly },
+          });
+        }
       } catch (err) {
-        console.error("Error fetching profile or overview", err);
+        if (err.response?.status === 401) {
+          localStorage.clear();
+          window.location.href = "/login";
+        } else {
+          console.error(
+            "Error fetching",
+            err.config?.url,
+            "->",
+            err.response?.status
+          );
+        }
       }
     };
 
     fetchProfileAndOverview();
-  }, [token, profileData, overviewData.chartData.length]);
+  }, [token, profileData]);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -190,45 +196,7 @@ export default function App() {
     };
 
     fetchListTransaction();
-  }, [token, transactions.length]);
-
-  useEffect(() => {
-    const fetchMonthlySummary = async () => {
-      if (!token) return;
-
-      try {
-        const res = await axios.get(
-          "http://localhost:8000/api/user/monthly-summary",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-
-        setMonthlySummary((prevData) =>
-          prevData.map((item) => {
-            const found = res.data.find((d) => d.month.startsWith(item.month));
-            return found
-              ? {
-                  ...item,
-                  income: found.income,
-                  expenses: found.expenses,
-                }
-              : item;
-          })
-        );
-      } catch (error) {
-        console.error("Error fetching monthly summary:", error);
-      }
-    };
-
-    const needsFetch = monthlySummary.every(
-      (m) => m.income === 0 && m.expenses === 0
-    );
-
-    if (needsFetch) {
-      fetchMonthlySummary();
-    }
-  }, [token, monthlySummary]);
+  }, [token, transactions]);
 
   useEffect(() => {
     const fetchGoals = async () => {
@@ -245,7 +213,18 @@ export default function App() {
     };
 
     fetchGoals();
-  }, [token, goals.length]);
+  }, [token, goals]);
+
+  const [rows, setRows] = useState([]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await fetchRows();
+      setRows(data);
+    };
+
+    loadData();
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
@@ -262,22 +241,12 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Box sx={{ display: "flex" }}>
-                  {isAdmin ? (
-                    <TopBar
-                      open={open}
-                      style={{ backgroundColor: theme.palette.admin }}
-                      handleDrawerOpen={() => setOpen(true)}
-                      setMode={setMode}
-                      notifications={notifications}
-                    />
-                  ) : (
-                    <TopBar
-                      open={open}
-                      handleDrawerOpen={() => setOpen(true)}
-                      setMode={setMode}
-                    />
-                  )}
-
+                  <TopBar
+                    open={open}
+                    handleDrawerOpen={() => setOpen(true)}
+                    setMode={setMode}
+                    notifications={notifications}
+                  />
                   {isAdmin ? (
                     <SideBarAdmin
                       open={open}
@@ -292,24 +261,28 @@ export default function App() {
                     />
                   )}
 
-                  <Box component="main" sx={{ flexGrow: 1, p: 3, m: 0 }}>
+                  <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                     <DrawerHeader />
                     <Routes>
                       <Route path="/" element={<Navigate to="/dashboard" />} />
                       <Route
                         path="/dashboard"
                         element={
-                          <Dashboard
-                            profileData={profileData}
-                            firstName={firstName}
-                            overviewData={overviewData}
-                            monthlySummary={monthlySummary}
-                            onDownloadReport={handleDownloadPDF}
-                            transactions={transactions}
-                            goals={goals}
-                          />
+                          isAdmin ? (
+                            <AdminDashboard />
+                          ) : (
+                            <Dashboard
+                              profileData={profileData}
+                              firstName={firstName}
+                              overviewData={overviewData}
+                              onDownloadReport={handleDownloadPDF}
+                              transactions={transactions}
+                              goals={goals}
+                            />
+                          )
                         }
                       />
+
                       <Route
                         path="/add-transaction"
                         element={<TransactionForm />}
@@ -319,7 +292,7 @@ export default function App() {
                         element={<TransactionList />}
                       />
                       <Route path="/reports" element={<MonthlyReports />} />
-                      {isAdmin && <Route path="/admin" element={<Admin />} />}
+                      {isAdmin && <Route path="/admin" element={<Admin rows={rows}/>} />}
                       {isAdmin && (
                         <Route
                           path="/admin/view-user/:id"
@@ -330,11 +303,14 @@ export default function App() {
                         path="/update-transaction/:id"
                         element={<UpdateTrs />}
                       />
-                      <Route path="/coach" element={<InitForm />} />
-                      <Route path="/settings" element={<GoalForm />} />
+                      <Route path="/initForm" element={<InitForm />} />
+                      <Route path="/goals" element={<GoalForm />} />
                       <Route path="/editGoal/:id" element={<EditGoal />} />
                       <Route path="/profile" element={<Profile />} />
-                      <Route path="/editInfo/:id" element={<EditPersonalInfo />} />
+                      <Route
+                        path="/editInfo/:id"
+                        element={<EditPersonalInfo />}
+                      />
                       <Route path="*" element={<h1>Page Not Found</h1>} />
                     </Routes>
                   </Box>

@@ -10,10 +10,7 @@ import MonthlyChart from "../charts/MonthlyChart";
 
 
 export default function Dashboard({ profileData, firstName, overviewData, onDownloadReport, monthlySummary, transactions, goals  }) {
-  
-    
-
-  
+ 
   return (
     <div>
       <Box

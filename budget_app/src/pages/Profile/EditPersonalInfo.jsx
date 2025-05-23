@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Typography, Paper, Button, Alert, TextField, Divider } from '@mui/material';
+import { Box, Paper, Button, Alert, TextField, Divider } from '@mui/material';
+import {useTheme} from '@mui/material';
 
 export default function EditPersonalInfo() {
+
+  const theme = useTheme();
   const [data, setData] = useState({
     firstName: '',
     lastName: '',
@@ -75,7 +78,7 @@ export default function EditPersonalInfo() {
   return (
     <Box
       sx={{
-        backgroundColor: '#EDEEE9',
+        backgroundColor: theme.palette.background.paper,
         minHeight: '100vh',
         p: { xs: 3, md: 6 },
         fontFamily: "'Inter', sans-serif",
@@ -89,7 +92,7 @@ export default function EditPersonalInfo() {
           display: 'flex',
           flexDirection: 'column',
           p: { xs: 3, md: 5 },
-          backgroundColor: '#FFFFFF',
+          backgroundColor: theme.palette.background.paper,
           maxWidth: 800,
           mx: 'auto',
           borderRadius: 4,

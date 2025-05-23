@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Alert } from '@mui/material';
 import "./style.css";
 
 const Login = () => {
@@ -45,14 +46,25 @@ const Login = () => {
       } else {
         navigate("/dashboard");
       }
-    } catch (err) {
-      setError(
-        err.response?.data?.message ||
-          "Login failed. Please check your credentials."
-      );
-    } finally {
-      setLoading(false);
+    }catch (err) {
+  if (err.response) {
+    const status = err.response.status;
+    const message = err.response.data?.message;
+
+    if (status === 403 && message === 'Your account has been deactivated.') {
+      setError('Your account has been deactivated. Please contact support.');
+    } else if (status === 401) {
+      setError('Incorrect password. Please try again.');
+    } else if (status === 422) {
+      setError('Validation error. Please fill in all fields correctly.');
+    } else {
+      setError(message || 'Login failed. Please try again.');
     }
+  } else {
+    setError('Network error. Please check your connection.');
+  }
+}
+
   };
 
   return (
@@ -65,8 +77,11 @@ const Login = () => {
           />
         </div>
 
-        {error && <div className="error-message">{error}</div>}
-
+        {error && (
+          <Alert severity="error" style={{ marginBottom: '10px' }}>
+            {error}
+          </Alert>
+        )}
         <form onSubmit={handleSubmit}>
           {/* Role Selection */}
           <div

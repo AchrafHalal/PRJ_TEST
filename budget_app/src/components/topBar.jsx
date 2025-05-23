@@ -9,7 +9,14 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import { useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
-import { Badge, Popover, MenuItem } from "@mui/material";
+import {
+  Badge,
+  Popover,
+  MenuItem,
+  Tooltip,
+  Menu,
+  ListItemText,
+} from "@mui/material";
 import Person2OutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
@@ -88,29 +95,35 @@ export default function TopBar({
   const theme = useTheme();
   const navigate = useNavigate();
 
+  const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+  const [accountAnchorEl, setAccountAnchorEl] = useState(null);
+
+  const handleNotificationClick = (event) => {
+    setNotificationAnchorEl(event.currentTarget);
+  };
+
+  const handleNotificationClose = () => {
+    setNotificationAnchorEl(null);
+  };
+
+  const handleAccountMenuOpen = (event) => {
+    setAccountAnchorEl(event.currentTarget);
+  };
+
+  const handleAccountMenuClose = () => {
+    setAccountAnchorEl(null);
+  };
+
   const toggleMode = () => {
     const newMode = theme.palette.mode === "light" ? "dark" : "light";
     localStorage.setItem("currentMode", newMode);
     setMode(newMode);
   };
 
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleNotificationClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handlePopoverClose = () => {
-    setAnchorEl(null);
-  };
-
   const handleRedirectToUsers = () => {
     navigate("/users");
-    handlePopoverClose();
+    handleNotificationClose();
   };
-
-  const openPopover = Boolean(anchorEl);
-  const popoverId = openPopover ? "notification-popover" : undefined;
 
   return (
     <AppBar position="fixed" open={open} style={style}>
@@ -124,7 +137,7 @@ export default function TopBar({
         >
           <MenuIcon />
         </IconButton>
-
+         
         <Search>
           <SearchIconWrapper>
             <SearchIcon />
@@ -146,45 +159,79 @@ export default function TopBar({
             )}
           </IconButton>
 
-          <>
-            <IconButton color="inherit" onClick={handleNotificationClick}>
-              <Badge badgeContent={notifications?.length || 0} color="error">
-                <NotificationsOutlinedIcon />
-              </Badge>
-            </IconButton>
-
-            <Popover
-              id={popoverId}
-              open={openPopover}
-              anchorEl={anchorEl}
-              onClose={handlePopoverClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
+          <IconButton color="inherit" onClick={handleNotificationClick}>
+            <Badge
+              badgeContent={notifications?.length || 0}
+              color="secondary"
+              variant="dot"
             >
-              {notifications?.length ? (
-                notifications.map((notif, index) => (
-                  <MenuItem key={index} onClick={handleRedirectToUsers}>
-                    {notif.message || notif.data?.message || "New notification"}
-                  </MenuItem>
-                ))
-              ) : (
-                <MenuItem disabled>No new notifications</MenuItem>
-              )}
-            </Popover>
-          </>
+              <NotificationsOutlinedIcon />
+            </Badge>
+          </IconButton>
+
+          <Popover
+            id="notification-popover"
+            open={Boolean(notificationAnchorEl)}
+            anchorEl={notificationAnchorEl}
+            onClose={handleNotificationClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            {notifications?.length ? (
+              notifications.map((notif, index) => (
+                <MenuItem key={index} onClick={handleRedirectToUsers}>
+                  {notif.message || notif.data?.message || "New notification"}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>No new notifications</MenuItem>
+            )}
+          </Popover>
 
           <IconButton color="inherit">
             <SettingsOutlinedIcon />
           </IconButton>
-          <IconButton color="inherit">
-            <Person2OutlinedIcon />
-          </IconButton>
+
+          <Tooltip title="Account">
+            <IconButton
+              size="large"
+              aria-label="user account"
+              aria-controls="logout-menu"
+              aria-haspopup="true"
+              onClick={handleAccountMenuOpen}
+              color="inherit"
+            >
+              <Person2OutlinedIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Menu
+            id="logout-menu"
+            anchorEl={accountAnchorEl}
+            open={Boolean(accountAnchorEl)}
+            onClose={handleAccountMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem
+              onClick={() => {
+                navigate("/profile");
+                handleAccountMenuClose();
+              }}
+            >
+              Profile
+            </MenuItem>
+
+            <MenuItem
+              onClick={() => {
+                handleAccountMenuClose();
+                localStorage.removeItem("token"); 
+                navigate("/login"); 
+              }}
+            >
+              <ListItemText>Logout</ListItemText>
+            </MenuItem>
+          </Menu>
         </Stack>
       </Toolbar>
     </AppBar>

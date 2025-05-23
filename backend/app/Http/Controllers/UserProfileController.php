@@ -34,8 +34,11 @@ class UserProfileController extends Controller
 
         $profile = UserProfile::updateOrCreate(
             ['user_id' => $user->id],
-            array_merge($validated, ['setup_completed' => true])
+            $validated
         );
+
+        $user->has_completed_setup = true;
+        $user->save();
 
         if ($request->filled(['name', 'target_amount', 'saved_amount'])) {
             Goal::create([
@@ -58,29 +61,44 @@ class UserProfileController extends Controller
     /**
      * Show the user profile (if needed).
      */
-    public function show()
-    {
-        $user = Auth::user();
-        $profile = UserProfile::where('user_id', $user->id)->first();
+   public function show()
+{
+    $user = Auth::user();
 
-        if (!$profile) {
-            return response()->json(['message' => 'User profile not found'], 404);
-        }
-
-        $now = Carbon::now();
-
-        // Calculate monthly incomes and expenses
-        $monthlyIncome = $profile->getCombinedTotalIncomeByMonth($now->month, $now->year);
-        $monthlyExpenses = $profile->getCombinedTotalExpensesByMonth($now->month, $now->year);
-
+    // Handle admin separately
+    if ($user->role === 'admin') {
         return response()->json([
-            'profile' => $profile,
-            'combined_total_income' => $profile->combined_total_income,
-            'combined_total_expenses' => $profile->combined_total_expenses,
-            'monthly_income' => $monthlyIncome,
-            'monthly_expenses' => $monthlyExpenses,
+            'profile' => [
+                'user' => [
+                    'firstName' => $user->first_name,
+                    'role' => $user->role,
+                    'email' => $user->email,
+                    // Any other admin fields
+                ]
+            ]
         ]);
     }
+
+    $profile = UserProfile::where('user_id', $user->id)->first();
+
+    if (!$profile) {
+        return response()->json(['message' => 'User profile not found'], 404);
+    }
+
+    $now = Carbon::now();
+
+    $monthlyIncome = $profile->getCombinedTotalIncomeByMonth($now->month, $now->year);
+    $monthlyExpenses = $profile->getCombinedTotalExpensesByMonth($now->month, $now->year);
+
+    return response()->json([
+        'profile' => $profile,
+        'combined_total_income' => $profile->combined_total_income,
+        'combined_total_expenses' => $profile->combined_total_expenses,
+        'monthly_income' => $monthlyIncome,
+        'monthly_expenses' => $monthlyExpenses,
+    ]);
+}
+
 
     public function monthlySummary()
     {

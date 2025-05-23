@@ -86,9 +86,7 @@ export default function SideBar({ open, handleDrawerClose, user }) {
     },
     { text: "Transactions", icon: <ListAltIcon />, path: "/transactions" },
     { text: "Reports", icon: <PieChartOutlineIcon />, path: "/reports" },
-    { text: "Goals & Budgets", icon: <FlagIcon />, path: "/goals" },
-    { text: "AI Coach", icon: <SmartToyIcon />, path: "/coach" },
-    { text: "Settings", icon: <SettingsOutlinedIcon />, path: "/settings" },
+    { text: "Goals", icon: <FlagIcon />, path: "/goals" },
   ];
 
   return (

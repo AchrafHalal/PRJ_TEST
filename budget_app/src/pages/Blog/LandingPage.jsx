@@ -1,104 +1,125 @@
-import React from 'react';
-import './style.css'; 
-import image1 from '../../assets/image1.png'; 
+import React from "react";
+import { Box, Typography, Button, Grid, Card, CardContent, CardMedia } from "@mui/material";
 
-export default function LandingPage() {
+const BlogPage = () => {
   return (
-    <div>
-      <header>
-        <div className="nav-bar">
-          <nav>
-            <div className="logo"><a href="/">LOGO</a></div>
-            <div className="list">
-              <ul>
-                <li><a href="#tickets">Our Services</a></li>
-                <li><a href="#highlight">About us</a></li>
-                <li><a href="#contact">Contact</a></li>
-              </ul>
-            </div>
-            <div className="btn">
-              <a href="/register"><button>Sign up</button></a>
-              <a href="/login"><button>Log in</button></a>
-            </div>
-          </nav>
-        </div>
+    <Box>
+      {/* Hero Section */}
+      <Box
+        sx={{
+          backgroundImage: 'url("/hero-image.jpg")',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          py: 12,
+          textAlign: "center",
+          color: "white",
+        }}
+      >
+        <Typography variant="h3" fontWeight={600} gutterBottom>
+          Bringing Simplicity In The Furnishing Market
+        </Typography>
+        <Button variant="contained" color="secondary">
+          Discover Our Services
+        </Button>
+      </Box>
 
-        <div className="image-container">
-          <img src={image1} alt="" />
-          <p>Welcome to web site</p>
-        </div>
-      </header>
+      {/* Who We Are Section */}
+      <Grid container spacing={4} sx={{ px: 4, py: 8 }} alignItems="center">
+        <Grid item xs={12} md={6}>
+          <Box>
+            <Typography variant="h6" color="text.secondary">
+              150+ Furnishing Projects
+            </Typography>
+            <Typography variant="body1" mt={2}>
+              We are a passionate team delivering top-quality furnishing solutions tailored to your needs.
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Box
+            sx={{
+              borderRadius: "50%",
+              overflow: "hidden",
+              width: 250,
+              height: 250,
+              mx: "auto",
+            }}
+          >
+            <img src="/who-we-are.jpg" alt="Who We Are" width="100%" height="100%" />
+          </Box>
+        </Grid>
+      </Grid>
 
-      <div className="section1" id="tickets">
-        <h1>Tickets</h1>
-        <div className="container">
-          <div className="box1">
-            <p><a href="#">Buy Your Ticket &gt;&gt;</a></p>
-          </div>
-          <div className="box2">
-            <div className="box2_p">
-              <h1>Book for Your Favourite <span>Team</span></h1>
-            </div>
-            <div className="img">
-              <img src="image1.png" alt="" />
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* How We Simplify Section */}
+      <Grid container spacing={4} sx={{ px: 4, py: 8 }} alignItems="center">
+        <Grid item xs={12} md={6}>
+          <Typography variant="h5" fontWeight={500} gutterBottom>
+            After Sales Support and Maintenance
+          </Typography>
+          <Typography variant="body1">
+            We ensure that your furniture remains as stunning and functional as the day it arrived.
+          </Typography>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardMedia
+              component="img"
+              height="250"
+              image="/luxury-room.jpg"
+              alt="Luxury Room"
+            />
+          </Card>
+        </Grid>
+      </Grid>
 
-      <div className="section2">
-        <h1>Shop</h1>
-        <h3>"Shop Like a <span>Champion</span>!"</h3>
-        <div className="container mt-5">
-          <div className="row align-items-center">
-            <div className="col-md-6">
-              <h2>Game Day Essentials</h2>
-              <p>Get ready for the ultimate football experience...</p>
-              <a href="#" className="btn">Shop Now</a>
-            </div>
-            <div className="col-md-6">
-              <img src="image1.png" className="img-fluid rounded" alt="" />
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Why Choose Us Section */}
+      <Box sx={{ px: 4, py: 8 }}>
+        <Typography variant="h5" fontWeight={600} textAlign="center" gutterBottom>
+          Why Choose Compatto
+        </Typography>
+        <Grid container spacing={4} mt={4}>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ textAlign: "center", p: 2 }}>
+              <CardContent>
+                <Typography variant="subtitle1" fontWeight={600}>
+                  Easy Order & Delivery
+                </Typography>
+                <Typography variant="body2">
+                  Hassle-free processes that bring your vision to life efficiently.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-      <div className="section3" id="highlight">
-        <h1>Highlights</h1>
-        <h3>"Watch the Recap for the Last Games!"</h3>
-        <div className="card-group">
-          {/* repeat cards */}
-        </div>
-      </div>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ textAlign: "center", p: 2 }}>
+              <CardContent>
+                <Typography variant="subtitle1" fontWeight={600}>
+                  After-Sales Support
+                </Typography>
+                <Typography variant="body2">
+                  Dedicated assistance even after the furniture is in your space.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
 
-      <div className="footer" id="contact">
-        <div className="footer-links">
-          <div className="footer-links_logo">
-            <div className="footer-logo"><a href="/">LOGO</a></div>
-            <p>All Rights Reserved</p>
-          </div>
-          <div className="footer-links_div">
-            <h4>Links</h4>
-            <p>Social Media</p>
-            <p>Contact</p>
-          </div>
-          <div className="footer-links_div">
-            <h4>Company</h4>
-            <p>Terms & Conditions</p>
-            <p>Privacy Policy</p>
-            <p>Contact</p>
-          </div>
-          <div className="footer-links_div">
-            <h4>Get in touch</h4>
-            <p>Marocco - Casablanca</p>
-            <p>0666-666666</p>
-            <p>info@test.net</p>
-          </div>
-        </div>
-        <div className="footer-copyright">
-          <p>© 2025 All rights reserved.</p>
-        </div>
-      </div>
-    </div>
+          <Grid item xs={12} md={4}>
+            <Card sx={{ textAlign: "center", p: 2 }}>
+              <CardContent>
+                <Typography variant="subtitle1" fontWeight={600}>
+                  No Variety Restrictions
+                </Typography>
+                <Typography variant="body2">
+                  Choose from a vast range tailored to your unique taste.
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Box>
+    </Box>
   );
-}
+};
+
+export default BlogPage;

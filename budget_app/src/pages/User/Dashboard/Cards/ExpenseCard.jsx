@@ -1,8 +1,10 @@
 import React from "react";
 import { Paper, Typography, Stack } from "@mui/material";
 import { FaWallet } from "react-icons/fa";
+import {useTheme} from "@mui/material";
 
 export default function ExpenseCard({ totalExpenses, percentChange }) {
+  const theme = useTheme();
   const formatted = new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
@@ -14,7 +16,7 @@ export default function ExpenseCard({ totalExpenses, percentChange }) {
       sx={{
         borderRadius: "16px",
         boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-        backgroundColor: "#ffffff",
+        backgroundColor: theme.palette.background.paper,
         padding: "16px",
         "&:hover": {
           transform: "scale(1.01)",

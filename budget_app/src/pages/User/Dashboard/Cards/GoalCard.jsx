@@ -15,10 +15,12 @@ import {
 import "react-circular-progressbar/dist/styles.css";
 import EditIcon from "@mui/icons-material/Edit";
 import { useNavigate } from "react-router-dom";
+import {useTheme} from "@mui/material";
 import axios from "axios";
 
 const GoalCard = ({ goal }) => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const [additionalSaving, setAdditionalSaving] = useState("");
   const [saved, setSaved] = useState(Number(goal.saved_amount) || 0);
@@ -66,7 +68,7 @@ const GoalCard = ({ goal }) => {
         width: 300,
         borderRadius: 3,
         p: 3,
-        background: "linear-gradient(135deg, #F8FAFC, #EEF1F6)",
+        background: theme.palette.background.paper,
         borderLeft: "5px solid #00c853",
         boxShadow: "0 4px 10px rgba(0, 0, 0, 0.05)",
         m: 2,

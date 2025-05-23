@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { DataGrid } from '@mui/x-data-grid';
@@ -10,26 +11,19 @@ import {
   LockOpenOutlined,
   ArrowUpwardOutlined,
   ArrowDownwardOutlined,
-  VisibilityOutlined 
+  VisibilityOutlined ,
+  CheckCircleOutline,
+  BlockOutlined,
+
 } from '@mui/icons-material';
 import { IconButton, Tooltip } from '@mui/material';
 import { fetchRows, promoteUser, depromoteUser } from './rows'; 
 
-export default function Admin() {
-  const [rowData, setRowData] = useState([]);
+export default function Admin({rows}) {
+  const [rowData, setRowData] = useState(rows);
   const theme = useTheme();
-
-  useEffect(() => {
-    const getRows = async () => {
-      const data = await fetchRows();
-      setRowData(data);
-
-      console.log(data);
-    };
-    
-
-    getRows();
-  }, []);
+  const token = localStorage.getItem('token');
+ 
 
   const handlePromote = async (id) => {
     await promoteUser(id);
@@ -47,6 +41,23 @@ export default function Admin() {
 
   const handleView = (id) => {
     navigate(`/admin/view-user/${id}`);
+  };
+
+  const handleToggleActivation = async (userId, isActive) => {
+    try {
+      await axios.put(
+        `http://localhost:8000/api/admin/${isActive ? 'deactivate' : 'activate'}/${userId}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setRowData(prev =>
+        prev.map(user =>
+          user.id === userId ? { ...user, is_active: !isActive } : user
+        )
+      );
+    } catch (error) {
+      console.error('Failed to toggle activation:', error);
+    }
   };
 
   const columns = [
@@ -73,10 +84,7 @@ export default function Admin() {
               display: "flex",
               justifyContent: "space-evenly",
               alignItems: "center",
-              backgroundColor:
-                role === "admin"
-                  ? theme.palette.primary.main
-                  : "#3da58a",
+              backgroundColor: role === "admin" ? "#1976d2" : "#3da58a",
               color: "#fff",
             }}
           >
@@ -87,7 +95,6 @@ export default function Admin() {
               </>
             ) : (
               <>
-                <LockOpenOutlined fontSize="small" />
                 <Typography variant="body2">User</Typography>
               </>
             )}
@@ -98,22 +105,26 @@ export default function Admin() {
     {
       field: 'action',
       headerName: 'Action',
-      display:'flex',
-      justifyContent:'center',
-      alignItems:'center',
-      width: 160,
+      width: 200,
       renderCell: (params) => {
         const isAdmin = params.row.role === 'admin';
+        const isActive = params.row.is_active;
         return (
           <Box display="flex" gap={1}>
             <Tooltip title={isAdmin ? 'Depromote to User' : 'Promote to Admin'}>
               <IconButton
                 color={isAdmin ? 'warning' : 'success'}
-                onClick={() =>
-                  isAdmin ? handleDepromote(params.row.id) : handlePromote(params.row.id)
-                }
+                onClick={() => isAdmin ? handleDepromote(params.row.id) : handlePromote(params.row.id)}
               >
                 {isAdmin ? <ArrowDownwardOutlined /> : <ArrowUpwardOutlined />}
+              </IconButton>
+            </Tooltip>
+            <Tooltip title={isActive ? 'Activate User' : 'Deactivate User' }>
+              <IconButton
+                color={isActive ? 'success' : 'error'}
+                onClick={() => handleToggleActivation(params.row.id, isActive)}
+              >
+                {isActive ?<CheckCircleOutline /> :  <BlockOutlined />}
               </IconButton>
             </Tooltip>
             <Tooltip title="View User">
@@ -129,13 +140,22 @@ export default function Admin() {
 
   return (
     <Box sx={{ height: 500, width: '100%' }} p={2}>
+      <style>
+        {`
+          .inactive-row {
+            opacity: 0.5;
+          }
+        `}
+      </style>
       <DataGrid
         rows={rowData}
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5]}
         disableSelectionOnClick
+        getRowClassName={(params) => (params.row.is_active ?'inactive-row' : '')}
       />
     </Box>
   );
-}
+};
+

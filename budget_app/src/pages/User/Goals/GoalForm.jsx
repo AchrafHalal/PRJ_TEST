@@ -47,7 +47,6 @@ const CreateGoalForm = ({ onGoalCreated }) => {
       sx={{
         maxWidth: 900,
         mx: "auto",
-        mt: 6,
         p: 4,
         boxShadow: 4,
         borderRadius: 3,
@@ -55,7 +54,6 @@ const CreateGoalForm = ({ onGoalCreated }) => {
       }}
     >
       <Box container sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Left Side - Typography */}
         <Box sx={{ display: "flex", justifyContent: "space-between", mr:'5px' }}>
           <Box>
             <Typography variant="h5" fontWeight={600} gutterBottom>

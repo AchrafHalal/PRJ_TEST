@@ -11,10 +11,14 @@ import {
   CircularProgress,
   Grid,
   Alert,
+  LinearProgress,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CancelIcon from "@mui/icons-material/Cancel";
 import EditIcon from "@mui/icons-material/Edit";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function Profile() {
@@ -24,19 +28,21 @@ export default function Profile() {
   const [editMode, setEditMode] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [selectedImage, setSelectedImage] = useState(null);
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const token = localStorage.getItem("token");
 
-  // 1) Fetch user
   useEffect(() => {
     (async () => {
       try {
         const res = await axios.get("http://localhost:8000/api/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const user = res.data.user || res.data; 
+        const user = res.data.user || res.data;
         setUserData(user);
-        console.log('user',user);
+        console.log("user", user);
         setLocation(user.location || "");
         setBio(user.bio || "");
       } catch (err) {
@@ -46,17 +52,15 @@ export default function Profile() {
     })();
   }, [token]);
 
-  // 2) Save location & bio
   const handleSave = async () => {
     try {
       await axios.put(
-        `http://localhost:8000/api/profileInfo`, // your PUT route
+        `http://localhost:8000/api/profileInfo`,
         { location, bio },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setMessage({ type: "success", text: "Profile updated successfully." });
       setEditMode(false);
-      // refresh userData
       setUserData((u) => ({ ...u, location, bio }));
     } catch (err) {
       console.error(err);
@@ -64,12 +68,10 @@ export default function Profile() {
     }
   };
 
-  // 3) Handle avatar file selection
   const handleFileChange = (e) => {
     setSelectedImage(e.target.files[0]);
   };
 
-  // 4) Upload avatar
   const handleUpload = async () => {
     if (!selectedImage) return;
     const formData = new FormData();
@@ -86,7 +88,6 @@ export default function Profile() {
         }
       );
       setMessage({ type: "success", text: "Avatar uploaded!" });
-      // update local state
       setUserData((u) => ({ ...u, image: res.data.user.image }));
     } catch (err) {
       console.error(err);
@@ -96,7 +97,7 @@ export default function Profile() {
 
   if (!userData) return null;
 
-  const progress = 60; // calculate dynamically if you wish
+  const progress = 60;
   const profileSteps = [
     { label: "Setup account", completed: true },
     { label: "Upload your photo", completed: !!userData.image },
@@ -113,6 +114,20 @@ export default function Profile() {
         Profile
       </Typography>
 
+      {isSmallScreen && (
+        <Paper sx={{ p: 2, mb: 2 }}>
+          <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+            Profile Completion: {progress}%
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={{ height: 10, borderRadius: 5 }}
+            color={progress === 100 ? "success" : "primary"}
+          />
+        </Paper>
+      )}
+
       {message.text && (
         <Alert severity={message.type} sx={{ mb: 2 }}>
           {message.text}
@@ -122,6 +137,7 @@ export default function Profile() {
       <Grid container spacing={4}>
         {/* Left Section */}
         <Grid item xs={12} lg={8}>
+          {/* Profile Image Upload */}
           <Paper sx={{ display: "flex", p: 4, mb: 3 }}>
             <Avatar
               alt="User"
@@ -157,10 +173,15 @@ export default function Profile() {
             </Box>
           </Paper>
 
+          {/* Personal Info */}
           <Paper sx={{ p: 3, mb: 3 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Typography variant="h6">Personal Info</Typography>
-              <IconButton>
+              <IconButton onClick={() => navigate(`/editInfo/${userData.id}`)}>
                 <EditIcon />
               </IconButton>
             </Box>
@@ -191,7 +212,11 @@ export default function Profile() {
 
           {/* Location & Bio */}
           <Paper sx={{ p: 3, mb: 3 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Typography variant="h6">Location & Bio</Typography>
               {!editMode ? (
                 <IconButton onClick={() => setEditMode(true)}>
@@ -243,58 +268,60 @@ export default function Profile() {
           </Paper>
         </Grid>
 
-        {/* Right Section */}
+        {/* Right Section (Progress) */}
         <Grid item xs={12} lg={4}>
-          <Paper sx={{ p: 3, textAlign: "center" }}>
-            <Typography variant="subtitle1" fontWeight={600} gutterBottom>
-              Complete your profile
-            </Typography>
-            <Box sx={{ position: "relative", display: "inline-flex", mb: 2 }}>
-              <CircularProgress
-                variant="determinate"
-                value={progress}
-                size={100}
-                thickness={5}
-              />
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 0,
-                  left: 0,
-                  bottom: 0,
-                  right: 0,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Typography variant="h6">{`${progress}%`}</Typography>
-              </Box>
-            </Box>
-
-            <Box mt={2} textAlign="left">
-              {profileSteps.map((step, idx) => (
+          {!isSmallScreen && (
+            <Paper sx={{ p: 3, textAlign: "center" }}>
+              <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                Complete your profile
+              </Typography>
+              <Box sx={{ position: "relative", display: "inline-flex", mb: 2 }}>
+                <CircularProgress
+                  variant="determinate"
+                  value={progress}
+                  size={100}
+                  thickness={5}
+                />
                 <Box
-                  key={idx}
                   sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    bottom: 0,
+                    right: 0,
                     display: "flex",
-                    justifyContent: "space-between",
                     alignItems: "center",
-                    py: 0.5,
+                    justifyContent: "center",
                   }}
                 >
-                  <Box display="flex" alignItems="center" gap={1}>
-                    {step.completed ? (
-                      <CheckCircleIcon color="success" fontSize="small" />
-                    ) : (
-                      <CancelIcon color="disabled" fontSize="small" />
-                    )}
-                    <Typography variant="body2">{step.label}</Typography>
-                  </Box>
+                  <Typography variant="h6">{`${progress}%`}</Typography>
                 </Box>
-              ))}
-            </Box>
-          </Paper>
+              </Box>
+
+              <Box mt={2} textAlign="left">
+                {profileSteps.map((step, idx) => (
+                  <Box
+                    key={idx}
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      py: 0.5,
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" gap={1}>
+                      {step.completed ? (
+                        <CheckCircleIcon color="success" fontSize="small" />
+                      ) : (
+                        <CancelIcon color="disabled" fontSize="small" />
+                      )}
+                      <Typography variant="body2">{step.label}</Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          )}
         </Grid>
       </Grid>
     </Box>

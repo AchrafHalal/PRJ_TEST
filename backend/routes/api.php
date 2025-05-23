@@ -44,9 +44,19 @@ Route::middleware('auth:api')->group(function () {
 Route::middleware(['auth:api', 'admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index']);
     Route::get('/users', [AdminController::class, 'listUsers']);
+    Route::get('/listAdmins', [AdminController::class, 'listAdmins']);
     Route::get('/viewUser/{id}', [AdminController::class, 'viewUser']);
     Route::put('/promote/{id}', [AdminController::class, 'promoteUser']);
     Route::put('/depromote/{id}', [AdminController::class, 'depromoteUser']);
     Route::delete('/user/{id}', [AdminController::class, 'deleteUser']);
+    Route::get('/user-stats', [AdminController::class, 'userStats']);
+    Route::get('/overview', [AdminController::class, 'getOverview']);
+    Route::get('/monthlyRegistrations', [AdminController::class, 'monthlyUserRegistrations']);
+    Route::put('/activate/{id}', [AdminController::class, 'activateUser']);
+    Route::put('/deactivate/{id}', [AdminController::class, 'deactivateUser']);
+
+
+
 });
+
 

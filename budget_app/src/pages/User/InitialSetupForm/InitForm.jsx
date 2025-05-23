@@ -12,6 +12,7 @@ import {
   Alert,
 } from "@mui/material";
 import axios from "axios";
+import { useTheme } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
 const InitForm = () => {
@@ -34,6 +35,7 @@ const InitForm = () => {
   const [showOtherIncome, setShowOtherIncome] = useState(false);
   const [showSubscriptions, setShowSubscriptions] = useState(false);
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +52,6 @@ const InitForm = () => {
     }
 
     try {
-      // 1. Setup user financial data
       const setupPayload = {
         salary: formData.salary,
         otherIncome: showOtherIncome ? formData.otherIncome : 0,
@@ -70,7 +71,6 @@ const InitForm = () => {
         },
       });
 
-      // 2. Submit goal data
       if (formData.savingsGoal && formData.savingsTarget) {
         const goalPayload = {
           name: formData.savingsGoal,
@@ -104,18 +104,21 @@ const InitForm = () => {
         fontFamily: "'Inter', sans-serif",
         flexGrow: 1,
         px: 3,
+        display: "flex",
+        flexDirection: "row",
       }}
     >
       <Typography
         variant="h2"
         sx={{
           fontSize: { xs: "1rem", md: "2rem" },
-          mb: 2,
-          color: "#303030",
+          mb: 3,
+          color: theme.palette.text.primary,
           textAlign: "center",
+          width:'350px'
         }}
       >
-        Hello there Fill this form to begin your journey
+        "You're in! Just a few quick steps to tailor your financial journey."
       </Typography>
 
       <Paper
@@ -123,8 +126,9 @@ const InitForm = () => {
         sx={{
           display: "flex",
           flexDirection: "column",
+          gap: 2,
           p: { xs: 2, md: 4 },
-          backgroundColor: "#FFFFFF",
+          backgroundColor: theme.palette.background.paper,
           maxWidth: 800,
           mx: "auto",
           borderRadius: 4,
@@ -143,7 +147,7 @@ const InitForm = () => {
           )}
 
           {/* --- Income Section --- */}
-          <Typography variant="h6" sx={{ mb: 1, color: "#2F3E46" }}>
+          <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
             Income Details
           </Typography>
 
@@ -155,6 +159,7 @@ const InitForm = () => {
             variant="outlined"
             fullWidth
             type="number"
+            size="small"
           />
 
           <FormControlLabel
@@ -165,7 +170,6 @@ const InitForm = () => {
               />
             }
             label="Freelance / Side Income?"
-            sx={{ mt: 2 }}
           />
 
           <Collapse in={showOtherIncome}>
@@ -177,14 +181,14 @@ const InitForm = () => {
               variant="outlined"
               fullWidth
               type="number"
-              sx={{ mt: 1 }}
+              size="small"
             />
           </Collapse>
 
-          <Divider sx={{ my: 4 }} />
+          <Divider sx={{ my: 2 }} />
 
           {/* --- Expense Section --- */}
-          <Typography variant="h6" sx={{ mb: 2, color: "#2F3E46" }}>
+          <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
             Expense Details
           </Typography>
 
@@ -195,7 +199,7 @@ const InitForm = () => {
             { label: "Food & Groceries", name: "groceries" },
             { label: "Insurance (Health, Car, etc.)", name: "insurance" },
             { label: "Entertainment & Shopping", name: "entertainment" },
-          ].map((field, index) => (
+          ].map((field) => (
             <TextField
               key={field.name}
               label={field.label}
@@ -205,7 +209,8 @@ const InitForm = () => {
               variant="outlined"
               fullWidth
               type="number"
-              sx={{ mt: index === 0 ? 0 : 2 }}
+              size="small"
+              sx={{ mb: 2 }}
             />
           ))}
 
@@ -217,7 +222,6 @@ const InitForm = () => {
               />
             }
             label="Do you have any subscriptions (Netflix, Spotify, etc.)?"
-            sx={{ mt: 2 }}
           />
 
           <Collapse in={showSubscriptions}>
@@ -229,14 +233,14 @@ const InitForm = () => {
               variant="outlined"
               fullWidth
               type="number"
-              sx={{ mt: 2 }}
+              size="small"
             />
           </Collapse>
 
-          <Divider sx={{ my: 4 }} />
+          <Divider sx={{ my: 2 }} />
 
           {/* --- Goals Section --- */}
-          <Typography variant="h6" sx={{ mb: 2, color: "#2F3E46" }}>
+          <Typography variant="h6" sx={{ color: theme.palette.text.primary }}>
             Financial Goals
           </Typography>
 
@@ -248,6 +252,8 @@ const InitForm = () => {
             variant="outlined"
             fullWidth
             type="text"
+            size="small"
+            sx={{ mb: 2 }}
           />
           <TextField
             label="Target Amount"
@@ -257,14 +263,14 @@ const InitForm = () => {
             variant="outlined"
             fullWidth
             type="number"
-            sx={{ mt: 2 }}
+            size="small"
           />
 
           <Button
             type="submit"
             variant="contained"
             color="primary"
-            sx={{ mt: 4, alignSelf: "flex-end" }}
+            sx={{ mt: 3, alignSelf: "flex-end" }}
           >
             Submit
           </Button>
