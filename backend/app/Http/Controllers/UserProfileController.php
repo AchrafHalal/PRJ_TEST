@@ -58,14 +58,11 @@ class UserProfileController extends Controller
         ]);
     }
 
-    /**
-     * Show the user profile (if needed).
-     */
+
    public function show()
 {
     $user = Auth::user();
 
-    // Handle admin separately
     if ($user->role === 'admin') {
         return response()->json([
             'profile' => [
@@ -73,7 +70,6 @@ class UserProfileController extends Controller
                     'firstName' => $user->first_name,
                     'role' => $user->role,
                     'email' => $user->email,
-                    // Any other admin fields
                 ]
             ]
         ]);
@@ -90,12 +86,15 @@ class UserProfileController extends Controller
     $monthlyIncome = $profile->getCombinedTotalIncomeByMonth($now->month, $now->year);
     $monthlyExpenses = $profile->getCombinedTotalExpensesByMonth($now->month, $now->year);
 
+
     return response()->json([
         'profile' => $profile,
         'combined_total_income' => $profile->combined_total_income,
         'combined_total_expenses' => $profile->combined_total_expenses,
         'monthly_income' => $monthlyIncome,
         'monthly_expenses' => $monthlyExpenses,
+        'net_balance' => $profile->net_balance,
+
     ]);
 }
 

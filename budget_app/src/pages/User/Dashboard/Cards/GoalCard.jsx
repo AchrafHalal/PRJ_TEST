@@ -14,8 +14,9 @@ import {
 } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 import EditIcon from "@mui/icons-material/Edit";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useNavigate } from "react-router-dom";
-import {useTheme} from "@mui/material";
+import { useTheme } from "@mui/material";
 import axios from "axios";
 
 const GoalCard = ({ goal }) => {
@@ -34,10 +35,6 @@ const GoalCard = ({ goal }) => {
   const handleSave = async () => {
     const newSavedAmount = saved + Number(additionalSaving);
 
-    // Update the saved amount in the UI immediately
-    setSaved(newSavedAmount);
-
-    // Send the updated saved amount to the backend
     try {
       setLoading(true);
       const res = await axios.put(
@@ -50,17 +47,19 @@ const GoalCard = ({ goal }) => {
         }
       );
       console.log("Goal updated:", res.data);
+
+      setSaved(newSavedAmount);
       setAdditionalSaving("");
-      setLoading(false);
     } catch (error) {
       console.error("Failed to update goal", error);
+    } finally {
       setLoading(false);
     }
   };
 
   const percentage = Math.min((saved / target) * 100, 100);
-
-  const monthsToAchieve = Math.ceil(target / saved) || "N/A";
+  const goalAchieved = saved >= target;
+  const monthsToAchieve = saved > 0 ? Math.ceil(target / saved) : "N/A";
 
   return (
     <Card
@@ -95,14 +94,23 @@ const GoalCard = ({ goal }) => {
           <CircularProgressbarWithChildren
             value={percentage}
             styles={buildStyles({
-              pathColor: "#00c853",
+              pathColor: goalAchieved ? "#4caf50" : "#00c853",
               trailColor: "#e0e0e0",
             })}
           >
-            <div style={{ fontSize: 14, textAlign: "center" }}>
-              <strong>${saved}</strong>
-              <div style={{ fontSize: 12 }}>of ${target}</div>
-            </div>
+            {goalAchieved ? (
+              <Box display="flex" flexDirection="column" alignItems="center">
+                <CheckCircleIcon sx={{ color: "#4caf50", fontSize: 32 }} />
+                <Typography variant="caption" color="success.main">
+                  Goal Achieved!
+                </Typography>
+              </Box>
+            ) : (
+              <div style={{ fontSize: 14, textAlign: "center" }}>
+                <strong>${saved}</strong>
+                <div style={{ fontSize: 12 }}>of ${target}</div>
+              </div>
+            )}
           </CircularProgressbarWithChildren>
         </Box>
 
@@ -120,12 +128,13 @@ const GoalCard = ({ goal }) => {
             variant="outlined"
             size="small"
             sx={{ mb: 2 }}
+            disabled={goalAchieved}
           />
           <Button
             variant="contained"
             color="primary"
             onClick={handleSave}
-            disabled={loading || !additionalSaving}
+            disabled={loading || !additionalSaving || goalAchieved}
           >
             {loading ? "Saving..." : "Add Saving"}
           </Button>

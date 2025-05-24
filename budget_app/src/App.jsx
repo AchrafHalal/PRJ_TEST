@@ -107,7 +107,6 @@ export default function App() {
         setFirstName(profile.profile.user.firstName);
         localStorage.setItem("profileData", JSON.stringify(profile));
 
-        // Only fetch overview if NOT admin
         if (role !== "admin") {
           const overviewRes = await axios.get(
             "http://localhost:8000/api/expenses/overview",
@@ -218,13 +217,14 @@ export default function App() {
   const [rows, setRows] = useState([]);
 
   useEffect(() => {
-    const loadData = async () => {
-      const data = await fetchRows();
-      setRows(data);
-    };
-
-    loadData();
-  }, []);
+   if (isAdmin) {
+      const loadData = async () => {
+        const data = await fetchRows();
+        setRows(data);
+      };
+      loadData();
+    }
+  }, [isAdmin]);  
 
   return (
     <ThemeProvider theme={theme}>
@@ -241,12 +241,21 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Box sx={{ display: "flex" }}>
-                  <TopBar
+                  {isAdmin ? (<TopBar
+                    open={open}
+                    handleDrawerOpen={() => setOpen(true)}
+                    setMode={setMode}
+                    notifications={notifications}
+                    backgroundColor={theme.palette.admin}
+                  />) : (
+                     <TopBar
                     open={open}
                     handleDrawerOpen={() => setOpen(true)}
                     setMode={setMode}
                     notifications={notifications}
                   />
+                  )}
+                 
                   {isAdmin ? (
                     <SideBarAdmin
                       open={open}

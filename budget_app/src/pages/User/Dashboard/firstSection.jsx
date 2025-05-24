@@ -6,7 +6,7 @@ import IncomeCard from "./Cards/IncomeCard";
 import ExpenseCard from "./Cards/ExpenseCard";
 
 export default function FirstSection({profileData}) {
-  const [salary, setSalary] = useState(null);
+  const [netBalance, setNetBalance] = useState(null);
   const [expenses, setExpenses] = useState(null);
   const [incomes, setIncomes] = useState(null);
   const [monthlyIncome, setMonthlyIncome] = useState(null);
@@ -17,7 +17,10 @@ export default function FirstSection({profileData}) {
   useEffect(() => {
     if (profileData) {
       
-      setSalary(profileData.profile.salary);
+      const totalIncome = profileData.combined_total_income || 0;
+      const totalExpenses = profileData.combined_total_expenses || 0;
+
+      setNetBalance(totalIncome - totalExpenses);
       setExpenses(profileData.combined_total_expenses);
       setIncomes(profileData.combined_total_income);
       setMonthlyIncome(profileData.monthly_income);
@@ -31,7 +34,7 @@ export default function FirstSection({profileData}) {
   return (
     <Box sx={{display:'flex', flexDirection:'row', gap:2}} spacing={3}>
       <Grid item xs={12} md={4} flexGrow={1}>
-        <BalanceCard balance={salary} />
+        <BalanceCard balance={netBalance} />
       </Grid>
       <Grid item xs={12} md={4}>
         <IncomeCard
@@ -52,7 +55,6 @@ export default function FirstSection({profileData}) {
   );
 }
 
-// Optional helper to calculate percent change (can be customized)
 function rescaleChange(currentMonth, total) {
   if (!currentMonth || !total || total === 0) return 0;
   return ((currentMonth / total) * 100).toFixed(1);

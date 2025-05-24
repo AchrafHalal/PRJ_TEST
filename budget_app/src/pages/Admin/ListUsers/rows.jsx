@@ -13,7 +13,9 @@ export const fetchRows = async () => {
     lastName: user.lastName,
     email: user.email,
     role: user.role,
+    is_active: user.is_active,
   }));
+  
 };
 
 export const promoteUser = async (id) => {

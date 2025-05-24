@@ -21,7 +21,9 @@ class AdminController extends Controller
 
     public function listUsers()
     {
-        $users = User::whereIn('role', ['admin', 'user'])->where('id', '!=', auth()->user()->id)->get();
+        $users = User::whereIn('role', ['admin', 'user'])
+                                ->where('id', '!=', auth()->user()->id)
+                                ->get(['id', 'firstName', 'lastName', 'email', 'role', 'is_active']);
 
         return response()->json([
             'users' => $users
@@ -111,7 +113,7 @@ class AdminController extends Controller
         if ($lastMonthCount > 0) {
             $growthRate = (($currentMonthCount - $lastMonthCount) / $lastMonthCount) * 100;
         } elseif ($currentMonthCount > 0) {
-            $growthRate = 100; 
+            $growthRate = 100;
         }
         return response()->json([
             'transactions' => Transaction::count(),
@@ -120,43 +122,43 @@ class AdminController extends Controller
         ]);
     }
 
-public function monthlyUserRegistrations()
-{
-    $currentYear = Carbon::now()->year;
+    public function monthlyUserRegistrations()
+    {
+        $currentYear = Carbon::now()->year;
 
-    $registrations = DB::table('users')
-        ->select(DB::raw("DATE_FORMAT(created_at, '%b') as month"), DB::raw('COUNT(*) as users'))
-        ->whereYear('created_at', $currentYear)
-        ->groupBy(DB::raw("DATE_FORMAT(created_at, '%b')"))
-        ->orderBy(DB::raw("MONTH(created_at)"))
-        ->get();
+        $registrations = DB::table('users')
+            ->select(DB::raw("DATE_FORMAT(created_at, '%b') as month"), DB::raw('COUNT(*) as users'))
+            ->whereYear('created_at', $currentYear)
+            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%b')"))
+            ->orderBy(DB::raw("MONTH(created_at)"))
+            ->get();
 
-    return response()->json([
-        'data' => $registrations
-    ]);
-}
+        return response()->json([
+            'data' => $registrations
+        ]);
+    }
 
-public function activateUser($id)
-{
-    $user = User::findOrFail($id);
-    $user->is_active = true;
-    $user->save();
+    public function activateUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_active = true;
+        $user->save();
 
-    return response()->json([
-        'message' => 'User has been activated.',
-        'user' => $user
-    ]);
-}
+        return response()->json([
+            'message' => 'User has been activated.',
+            'user' => $user
+        ]);
+    }
 
-public function deactivateUser($id)
-{
-    $user = User::findOrFail($id);
-    $user->is_active = false;
-    $user->save();
+    public function deactivateUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->is_active = false;
+        $user->save();
 
-    return response()->json([
-        'message' => 'User has been deactivated.',
-        'user' => $user
-    ]);
-}
+        return response()->json([
+            'message' => 'User has been deactivated.',
+            'user' => $user
+        ]);
+    }
 }

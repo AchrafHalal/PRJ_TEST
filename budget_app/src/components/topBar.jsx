@@ -91,6 +91,7 @@ export default function TopBar({
   setMode,
   style,
   notifications,
+  backgroundColor ,
 }) {
   const theme = useTheme();
   const navigate = useNavigate();
@@ -126,7 +127,7 @@ export default function TopBar({
   };
 
   return (
-    <AppBar position="fixed" open={open} style={style}>
+    <AppBar position="fixed" open={open} style={style} sx={{backgroundColor: backgroundColor || "primary.main",}}>
       <Toolbar>
         <IconButton
           color="inherit"

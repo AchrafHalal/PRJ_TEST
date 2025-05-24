@@ -48,11 +48,12 @@ class GoalController extends Controller
         $goal = Goal::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'target_amount' => 'required|numeric|min:0',
+            'name' => 'sometimes|required|string|max:255',
+            'target_amount' => 'sometimes|required|numeric|min:0',
             'saved_amount' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
         ]);
+
 
         $goal->update($validated);
 

@@ -104,7 +104,7 @@ class UserProfile extends Model
 
         $categories = [
             'Necessaries' => ['Rent', 'Utilities'],
-            'Entertainement' => ['Entertainement','Shoping'],
+            'Entertainement' => ['Entertainement', 'Shoping'],
             'Transportation' => ['Transport'],
             'Food' => ['Food & Health'],
             'Subscriptions' => ['Subscriptions'],
@@ -141,5 +141,10 @@ class UserProfile extends Model
             'Subscriptions' => '#9c27b0',
             default => '#9e9e9e',
         };
+    }
+
+    public function getNetBalanceAttribute()
+    {
+        return $this->combined_total_income - $this->combined_total_expenses;
     }
 }
