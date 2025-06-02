@@ -23,6 +23,7 @@ import Profile from "./pages/Profile/profile";
 import EditPersonalInfo from "./pages/Profile/EditPersonalInfo";
 import "./App.css";
 import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard";
+import StandaloneLandingPage from '../src/pages/Blog/StandaloneLandingPage'
 import { fetchRows } from './pages/Admin/ListUsers/rows'; 
 
 
@@ -234,6 +235,7 @@ export default function App() {
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Signup />} />
+          <Route path="/" element={<StandaloneLandingPage />} />
 
           {/* Protected Routes */}
           <Route

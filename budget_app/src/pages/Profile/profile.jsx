@@ -105,7 +105,6 @@ export default function Profile() {
     { label: "Location", completed: !!location },
     { label: "Biography", completed: !!bio },
     { label: "Notifications", completed: false },
-    { label: "Bank details", completed: false },
   ];
 
   return (

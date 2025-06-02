@@ -203,6 +203,9 @@ const Signup = () => {
           </div>
         </form>
       </div>
+      <div className="back-to-home">
+    <a href="/">← Back to Home</a>
+  </div>
     </div>
   );
 };
