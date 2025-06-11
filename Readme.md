@@ -1,9 +1,17 @@
-npm install react-icons
+# Installation du backend
 
-npm install recharts
+cd backend
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan serve
 
-npm install @mui/material @emotion/react @emotion/styled
 
-npm install @mui/icons-material
+# Installation du frontend
 
-composer require barryvdh/laravel-dompdf
+cd frontend
+npm install
+npm run dev
+
+
