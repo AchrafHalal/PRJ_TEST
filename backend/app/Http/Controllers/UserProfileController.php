@@ -59,44 +59,44 @@ class UserProfileController extends Controller
     }
 
 
-   public function show()
-{
-    $user = Auth::user();
+    public function show()
+    {
+        $user = Auth::user();
 
-    if ($user->role === 'admin') {
-        return response()->json([
-            'profile' => [
-                'user' => [
-                    'firstName' => $user->first_name,
-                    'role' => $user->role,
-                    'email' => $user->email,
+        if ($user->role === 'admin') {
+            return response()->json([
+                'profile' => [
+                    'user' => [
+                        'firstName' => $user->first_name,
+                        'role' => $user->role,
+                        'email' => $user->email,
+                    ]
                 ]
-            ]
+            ]);
+        }
+
+        $profile = UserProfile::where('user_id', $user->id)->first();
+
+        if (!$profile) {
+            return response()->json(['message' => 'User profile not found'], 404);
+        }
+
+        $now = Carbon::now();
+
+        $monthlyIncome = $profile->getCombinedTotalIncomeByMonth($now->month, $now->year);
+        $monthlyExpenses = $profile->getCombinedTotalExpensesByMonth($now->month, $now->year);
+
+
+        return response()->json([
+            'profile' => $profile,
+            'combined_total_income' => $profile->combined_total_income,
+            'combined_total_expenses' => $profile->combined_total_expenses,
+            'monthly_income' => $monthlyIncome,
+            'monthly_expenses' => $monthlyExpenses,
+            'net_balance' => $profile->net_balance,
+
         ]);
     }
-
-    $profile = UserProfile::where('user_id', $user->id)->first();
-
-    if (!$profile) {
-        return response()->json(['message' => 'User profile not found'], 404);
-    }
-
-    $now = Carbon::now();
-
-    $monthlyIncome = $profile->getCombinedTotalIncomeByMonth($now->month, $now->year);
-    $monthlyExpenses = $profile->getCombinedTotalExpensesByMonth($now->month, $now->year);
-
-
-    return response()->json([
-        'profile' => $profile,
-        'combined_total_income' => $profile->combined_total_income,
-        'combined_total_expenses' => $profile->combined_total_expenses,
-        'monthly_income' => $monthlyIncome,
-        'monthly_expenses' => $monthlyExpenses,
-        'net_balance' => $profile->net_balance,
-
-    ]);
-}
 
 
     public function monthlySummary()

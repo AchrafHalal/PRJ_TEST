@@ -47,33 +47,33 @@ class AuthController extends Controller
     }
 
     public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|string|exists:users,email',
-        'password' => 'required',
-    ]);
+    {
+        $request->validate([
+            'email' => 'required|string|exists:users,email',
+            'password' => 'required',
+        ]);
 
-    $user = User::where('email', $request->email)->firstOrFail();
+        $user = User::where('email', $request->email)->firstOrFail();
 
-    if (!$user->is_active) {
-        return response()->json(['message' => 'Your account has been deactivated.'], 403);
+        if (!$user->is_active) {
+            return response()->json(['message' => 'Your account has been deactivated.'], 403);
+        }
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Incorrect password.'], 401);
+        }
+
+        $user->last_login_at = now();
+        $user->save();
+
+        $token = JWTAuth::fromUser($user);
+
+        return response()->json([
+            'user' => $user->makeHidden(['password']),
+            'token' => $token,
+            'role' => $user->role,
+        ]);
     }
-
-    if (!Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Incorrect password.'], 401);
-    }
-
-    $user->last_login_at = now();
-    $user->save();
-
-    $token = JWTAuth::fromUser($user);
-
-    return response()->json([
-        'user' => $user->makeHidden(['password']),
-        'token' => $token,
-        'role' => $user->role,
-    ]);
-}
 
 
 
@@ -146,6 +146,19 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
+
+public function profile(Request $request)
+{
+    $user = Auth::user();
+
+    if (!$user) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
+    }
+
+    return response()->json([
+        'user' => $user->makeHidden(['password']),
+    ]);
+}
 
 
     public function user()

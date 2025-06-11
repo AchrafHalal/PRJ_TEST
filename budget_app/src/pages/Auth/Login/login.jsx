@@ -67,68 +67,30 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
-      {/* Left Side */}
-      <div className="login-left">
-        <div className="back-to-home">
-          <a href="/">← Back to Home</a>
-        </div>
-        <div className="branding">
-          <div className="logo">💰</div>
-          <h1>Welcome to FinanceTracker</h1>
-          <p>
-            Your smart companion for managing money, setting goals, and tracking
-            growth.
-          </p>
+ <div className="login-page">
+      <div className="login-container">
+        <div className="user-icon">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/456/456212.png"
+            alt="User Icon"
+          />
         </div>
 
-        <div className="features">
-          <div className="feature">
-            <div className="feature-icon">📊</div>
-            <div className="feature-text">
-              Real-time tracking of income and expenses.
-            </div>
-          </div>
-          <div className="feature">
-            <div className="feature-icon">🎯</div>
-            <div className="feature-text">
-              Set custom budgets and financial goals.
-            </div>
-          </div>
-          <div className="feature">
-            <div className="feature-icon">📈</div>
-            <div className="feature-text">
-              Gain powerful insights through analytics.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right Side */}
-      <div className="login-right">
-        <div className="login-container">
-          <div className="user-icon">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/456/456212.png"
-              alt="User Icon"
-            />
-          </div>
-
-          {error && (
-            <Alert severity="error" style={{ marginBottom: "10px" }}>
-              {error}
-            </Alert>
-          )}
-
-          <form onSubmit={handleSubmit}>
-            {/* Role Selection */}
-            <div
-              className="options"
-              style={{ marginTop: "10px", marginBottom: "10px" }}
-            >
-              <label style={{ display: "block", marginBottom: "4px" }}>
-                Login as:
-              </label>
+        {error && (
+          <Alert severity="error" style={{ marginBottom: "10px" }}>
+            {error}
+          </Alert>
+        )}
+        <form onSubmit={handleSubmit}>
+          {/* Role Selection */}
+          <div
+            className="options"
+            style={{ marginTop: "10px", marginBottom: "10px" }}
+          >
+            <label style={{ display: "block", marginBottom: "4px" }}>
+              Login as:
+            </label>
+            <div style={{ display: "flex", gap: "10px" }}>
               <label>
                 <input
                   type="radio"
@@ -144,84 +106,87 @@ const Login = () => {
                   value="admin"
                   checked={isAdmin}
                   onChange={() => setIsAdmin(true)}
-                  style={{ marginLeft: "10px" }}
                 />{" "}
                 Admin
               </label>
             </div>
+          </div>
 
-            {/* Email */}
-            <div className="input-group">
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/3178/3178165.png"
-                alt="Email Icon"
-              />
+          {/* Email */}
+          <div className="input-group">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/3178/3178165.png"
+              alt="Email Icon"
+            />
+            <input
+              type="email"
+              placeholder="Email ID"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div className="input-group" style={{ position: "relative" }}>
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png"
+              alt="Lock Icon"
+              style={{ width: 20, height: 20 }}
+            />
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              style={{ paddingRight: "40px" }}
+            />
+            <img
+              src={
+                showPassword
+                  ? "https://cdn-icons-png.flaticon.com/512/159/159605.png" // eye open icon
+                  : "https://cdn-icons-png.flaticon.com/512/159/159604.png" // eye closed icon
+              }
+              alt="Toggle Password Visibility"
+              onClick={() => setShowPassword(!showPassword)}
+              style={{
+                position: "absolute",
+                right: 10,
+                top: "50%",
+                transform: "translateY(-50%)",
+                width: 20,
+                height: 20,
+                cursor: "pointer",
+              }}
+            />
+          </div>
+
+          {/* Remember Me */}
+          <div className="options">
+            <label>
               <input
-                type="email"
-                placeholder="Email ID"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />{" "}
+              Remember me
+            </label>
+            <a href="#">Forgot Password?</a>
+          </div>
 
-            {/* Password */}
-            <div className="input-group" style={{ position: "relative" }}>
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/3064/3064155.png"
-                alt="Lock Icon"
-              />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{ paddingRight: "40px" }}
-              />
-              <img
-                src={
-                  showPassword
-                    ? "https://cdn-icons-png.flaticon.com/512/159/159605.png"
-                    : "https://cdn-icons-png.flaticon.com/512/159/159604.png"
-                }
-                alt="Toggle Password"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  right: 10,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  width: 20,
-                  height: 20,
-                  cursor: "pointer",
-                }}
-              />
-            </div>
+          {/* Submit */}
+          <button type="submit" className="login-btn" disabled={loading}>
+            {loading ? "LOGGING IN..." : "LOGIN"}
+          </button>
 
-            {/* Remember Me */}
-            <div className="options">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />{" "}
-                Remember me
-              </label>
-              <a href="#">Forgot Password?</a>
-            </div>
-
-            {/* Submit */}
-            <button type="submit" className="login-btn" disabled={loading}>
-              {loading ? "LOGGING IN..." : "LOGIN"}
-            </button>
-
-            <div className="signup-link">
-              Don't have an account? <a href="/register">Sign up</a>
-            </div>
-          </form>
-        </div>
+          <div className="signup-link">
+            Don't have an account? <a href="/register">Sign up</a>
+          </div>
+        </form>
+      </div>
+      <div className="back-to-home">
+        <a href="/">← Back to Home</a>
       </div>
     </div>
   );

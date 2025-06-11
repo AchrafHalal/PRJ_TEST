@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import axios from "axios";
 import { ThemeProvider, createTheme, styled } from "@mui/material/styles";
 import { CssBaseline, Box } from "@mui/material";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import SideBar from "./components/sideBar";
 import SideBarAdmin from "./components/sideBarAdmin";
 import TopBar from "./components/topBar";
@@ -24,8 +24,7 @@ import EditPersonalInfo from "./pages/Profile/EditPersonalInfo";
 import "./App.css";
 import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard";
 import StandaloneLandingPage from '../src/pages/Blog/StandaloneLandingPage'
-import { fetchRows } from './pages/Admin/ListUsers/rows'; 
-
+import { fetchRows } from './pages/Admin/ListUsers/rows';
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -35,16 +34,20 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   ...theme.mixins.toolbar,
 }));
 
+// ✅ Updated PrivateRoute with setupCompleted redirect
 const PrivateRoute = ({ children }) => {
   const isAuthenticated = localStorage.getItem("auth") === "true";
   const profile = JSON.parse(localStorage.getItem("profileData") || "{}");
+  const location = useLocation();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" />;
   }
 
-  if (profile?.profile && profile.profile.setupCompleted === false) {
-    return <Navigate to="/coach" />;
+  const setupIncomplete = profile?.profile?.setupCompleted === false;
+
+  if (setupIncomplete && location.pathname !== "/initForm") {
+    return <Navigate to="/initForm" />;
   }
 
   return children;
@@ -52,9 +55,7 @@ const PrivateRoute = ({ children }) => {
 
 export default function App() {
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState(
-    localStorage.getItem("currentMode") || "light"
-  );
+  const [mode, setMode] = useState(localStorage.getItem("currentMode") || "light");
   const [profileData, setProfileData] = useState(null);
   const isAdmin = profileData?.profile?.user?.role === "admin";
 
@@ -69,6 +70,7 @@ export default function App() {
   const [notifications, setNotifications] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [goals, setGoals] = useState([]);
+  const [rows, setRows] = useState([]);
 
   const handleDownloadPDF = async () => {
     try {
@@ -94,6 +96,7 @@ export default function App() {
 
   useEffect(() => {
     const fetchProfileAndOverview = async () => {
+      const token = localStorage.getItem('token');
       if (!token || profileData) return;
 
       try {
@@ -145,12 +148,7 @@ export default function App() {
           localStorage.clear();
           window.location.href = "/login";
         } else {
-          console.error(
-            "Error fetching",
-            err.config?.url,
-            "->",
-            err.response?.status
-          );
+          console.error("Error fetching", err.config?.url, "->", err.response?.status);
         }
       }
     };
@@ -161,7 +159,6 @@ export default function App() {
   useEffect(() => {
     const fetchNotifications = async () => {
       if (!token) return;
-
       try {
         const res = await axios.get("http://localhost:8000/api/notifications", {
           headers: { Authorization: `Bearer ${token}` },
@@ -178,14 +175,10 @@ export default function App() {
   useEffect(() => {
     const fetchListTransaction = async () => {
       if (!token || transactions.length > 0) return;
-
       try {
-        const res = await axios.get(
-          "http://localhost:8000/api/listTransaction",
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await axios.get("http://localhost:8000/api/listTransaction", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         if (Array.isArray(res.data)) {
           setTransactions(res.data.slice(0, 5));
@@ -201,7 +194,6 @@ export default function App() {
   useEffect(() => {
     const fetchGoals = async () => {
       if (!token || goals.length > 0) return;
-
       try {
         const res = await axios.get("http://localhost:8000/api/goals", {
           headers: { Authorization: `Bearer ${token}` },
@@ -215,17 +207,15 @@ export default function App() {
     fetchGoals();
   }, [token, goals]);
 
-  const [rows, setRows] = useState([]);
-
   useEffect(() => {
-   if (isAdmin) {
+    if (isAdmin) {
       const loadData = async () => {
         const data = await fetchRows();
         setRows(data);
       };
       loadData();
     }
-  }, [isAdmin]);  
+  }, [isAdmin]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -243,21 +233,13 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Box sx={{ display: "flex" }}>
-                  {isAdmin ? (<TopBar
+                  <TopBar
                     open={open}
                     handleDrawerOpen={() => setOpen(true)}
                     setMode={setMode}
                     notifications={notifications}
-                    backgroundColor={theme.palette.admin}
-                  />) : (
-                     <TopBar
-                    open={open}
-                    handleDrawerOpen={() => setOpen(true)}
-                    setMode={setMode}
-                    notifications={notifications}
+                    backgroundColor={isAdmin ? theme.palette.admin : undefined}
                   />
-                  )}
-                 
                   {isAdmin ? (
                     <SideBarAdmin
                       open={open}
@@ -293,35 +275,17 @@ export default function App() {
                           )
                         }
                       />
-
-                      <Route
-                        path="/add-transaction"
-                        element={<TransactionForm />}
-                      />
-                      <Route
-                        path="/transactions"
-                        element={<TransactionList />}
-                      />
+                      <Route path="/add-transaction" element={<TransactionForm />} />
+                      <Route path="/transactions" element={<TransactionList />} />
                       <Route path="/reports" element={<MonthlyReports />} />
-                      {isAdmin && <Route path="/admin" element={<Admin rows={rows}/>} />}
-                      {isAdmin && (
-                        <Route
-                          path="/admin/view-user/:id"
-                          element={<ViewUser />}
-                        />
-                      )}
-                      <Route
-                        path="/update-transaction/:id"
-                        element={<UpdateTrs />}
-                      />
+                      {isAdmin && <Route path="/admin" element={<Admin rows={rows} />} />}
+                      {isAdmin && <Route path="/admin/view-user/:id" element={<ViewUser />} />}
+                      <Route path="/update-transaction/:id" element={<UpdateTrs />} />
                       <Route path="/initForm" element={<InitForm />} />
                       <Route path="/goals" element={<GoalForm />} />
                       <Route path="/editGoal/:id" element={<EditGoal />} />
                       <Route path="/profile" element={<Profile />} />
-                      <Route
-                        path="/editInfo/:id"
-                        element={<EditPersonalInfo />}
-                      />
+                      <Route path="/editInfo/:id" element={<EditPersonalInfo />} />
                       <Route path="*" element={<h1>Page Not Found</h1>} />
                     </Routes>
                   </Box>

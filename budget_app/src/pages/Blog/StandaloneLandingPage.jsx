@@ -66,7 +66,7 @@ const StandaloneLandingPage = () => {
     {
       icon: "🔒",
       title: "Secure & Private Data",
-      description: "Bank-level security with 256-bit encryption. Your financial data is always protected and never shared with third parties.",
+      description: "Your financial data is always protected and never shared with third parties.",
       color: "red"
     }
   ];

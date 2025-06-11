@@ -16,7 +16,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -31,14 +31,19 @@ const Signup = () => {
     e.preventDefault();
     setError("");
 
-    const { firstName, lastName, dateOfBirth, email, password, passwordConfirmation } = formData;
+    const {
+      firstName,
+      lastName,
+      dateOfBirth,
+      email,
+      password,
+      passwordConfirmation,
+    } = formData;
 
     if (password !== passwordConfirmation) {
       setError("Passwords do not match");
       return;
     }
-
-
 
     setLoading(true);
 
@@ -59,18 +64,25 @@ const Signup = () => {
 
       const token = loginRes.data.token;
       const role = loginRes.data.user.role;
-      
+
       localStorage.setItem("isAdmin", role === "admin" ? "admin" : "user");
       localStorage.setItem("token", token);
       localStorage.setItem("auth", "true");
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      const profileRes = await axios.get("http://localhost:8000/api/profile");
+      const setupCompleted = profileRes.data?.profile?.setupCompleted;
 
-      navigate("/dashboard");
+      if (setupCompleted === false) {
+        navigate("/init-form");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       console.error("Full error:", err);
       const errorMsg = err.response?.data?.errors
         ? Object.values(err.response.data.errors).flat().join(", ")
-        : err.response?.data?.message || "Registration failed. Please try again.";
+        : err.response?.data?.message ||
+          "Registration failed. Please try again.";
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -204,8 +216,8 @@ const Signup = () => {
         </form>
       </div>
       <div className="back-to-home">
-    <a href="/">← Back to Home</a>
-  </div>
+        <a href="/">← Back to Home</a>
+      </div>
     </div>
   );
 };
